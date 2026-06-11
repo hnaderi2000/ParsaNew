@@ -1,0 +1,107 @@
+.container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  /* backdrop-filter: blur(10px); */
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-y: scroll;
+}
+
+.form {
+  width: 800px;
+  padding: 20px;
+  background-color: white;
+  border: var(--global-border-color) 1px solid;
+  border-radius: var(--global-radius);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.formHeader {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.formInput {
+  margin-bottom: 15px;
+  display: flex;
+}
+
+.formInput label {
+  display: inline-block;
+  width: 150px;
+  margin-bottom: 5px;
+}
+
+.formInput input,
+.formInput select {
+  flex: 1;
+  /* width: calc(100% - 170px); */
+  padding: 8px;
+  border: 1px solid #ddd;
+  font-family: inherit;
+  outline: none;
+  border-radius: var(--global-radius);
+}
+
+.formDown {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.error {
+  color: red;
+  font-size: 12px;
+  margin-top: 5px;
+  display: block;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1001;
+}
+
+.modalContent {
+  background-color: white;
+  padding: 20px;
+  border-radius: var(--global-radius);
+  width: 400px;
+  /* max-width: 90%; */
+}
+
+.addNewProf {
+  background-color: var(--blue);
+}
+
+
+.datePickerGroup input {
+  padding: 10px;
+  border: 1px solid var(--global-border-color);
+  border-radius: var(--global-radius);
+  font-size: 14px;
+  width: 100%;
+  height: 42px;
+  flex: 1;
+}
+
+
+
+.datePickerGroup input:focus {
+  outline: none;
+}

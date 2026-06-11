@@ -1,0 +1,125 @@
+:root {
+  font-family: Vazirmatn, Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  --global-radius: 8px;
+  --green: #4caf50;
+  --red: #f44336;
+  --yellow: #ffca3a;
+  --global-input-width: 350px;
+  --global-border-color: #cfcfcf;
+  --blue: #2196f3;
+  --mint: #58855c;
+}
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: auto;
+  max-width: 1600px;
+  min-height: 100vh;
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fcfcfc;
+}
+
+button,
+input,
+select {
+  font-family: inherit;
+}
+
+input:focus {
+  outline: none;
+}
+
+button {
+  transition: transform 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  color: white;
+  /* margin: 0px 15px; */
+  /* padding: 0px 5px; */
+  border-radius: var(--global-radius);
+  cursor: pointer;
+  border: 1px solid;
+}
+
+button:hover {
+  transform: scale(1.05);
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* styles used for minibutton */
+
+.miniButton svg,
+.bigButton svg {
+  height: 18px;
+  width: 18px;
+  margin-left: 5px;
+}
+
+.miniButton {
+  /* for iconed buttons */
+  width: 40px;
+  height: 36px;
+  color: white;
+}
+
+.miniButton svg {
+  margin: 0px;
+}
+
+.success {
+  background-color: var(--green);
+}
+
+.error {
+  background-color: var(--red);
+}
+
+.warning {
+  background-color: var(--yellow);
+}
+
+.info {
+  background-color: var(--blue);
+}
+
+.extra {
+  background-color: var(--mint);
+}
+
+.search {
+  color: var(--blue);
+  border: 1px solid var(--dark);
+  background-color: transparent;
+}
+
+/* end of minibuttons */
+
+/* big button*/
+.bigButton {
+  /* width: 100px; */
+  height: 36px;
+  padding: 0px 10px;
+}
+
+table {
+  border-radius: var(--global-radius);
+}

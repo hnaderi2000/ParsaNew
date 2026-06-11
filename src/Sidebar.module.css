@@ -1,0 +1,134 @@
+.sidebar {
+  width: 20%;
+  height: 100%;
+  border: 1px solid #cfcfcf;
+  border-radius: 8px;
+  margin: 0px 20px;
+  background-color: #ffffff;
+  overflow-y: scroll;
+}
+
+::-webkit-scrollbar {
+  width: 0px;
+  background-color: transparent;
+}
+
+.profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 50px;
+}
+
+.buttons {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0px 30px;
+  margin-top: 10px;
+}
+
+.profile img {
+  width: 100px;
+  height: 100px;
+  border-radius: 100px;
+  padding: 4px;
+  border: 1px solid var(--global-border-color);
+  margin-bottom: 20px;
+}
+
+.profile img:hover {
+  cursor: pointer;
+  filter: brightness(80%);
+}
+
+.profile p {
+  font-weight: bold;
+  margin: 4px 0px;
+  display: flex;
+  align-items: center;
+}
+
+.tabs {
+  margin-top: 50px;
+}
+
+.tabs li {
+  border: 1px solid var(--global-border-color);
+  margin: 5px 15px;
+  padding: 5px 10px;
+  transition: all 0.2s ease-in;
+  border-radius: var(--global-radius);
+  list-style: none;
+}
+
+.tabs li:hover {
+  transform: scale(1.05);
+  cursor: pointer;
+}
+
+.activeTab {
+  background-color: #e0e0e0;
+  font-weight: bold;
+}
+
+@media (max-width: 746px) {
+  .sidebar,
+  .profile,
+  .workspace {
+    width: 100%;
+  }
+  .workspace {
+    margin-top: 20px;
+  }
+}
+
+.icon {
+  margin-left: 5px;
+  transform: scaleX(-1);
+}
+
+.logoutButton {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  color: var(--red);
+  border: var(--global-border-color) 1px solid;
+  border-radius: var(--global-radius);
+  background-color: transparent;
+  padding: 8px 20px;
+  cursor: pointer;
+  margin: 10px 0px 0px 0px;
+}
+
+.logoutButton svg {
+  margin-left: 5px;
+  width: 15px;
+  height: 15px;
+}
+
+.roleDropdown {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  border: var(--global-border-color) 1px solid;
+  border-radius: var(--global-radius);
+  background-color: transparent;
+  padding: 8px 20px;
+  cursor: pointer;
+}
+
+.roleDropdown:focus {
+  color: black;
+  outline: none;
+}
+
+.roleDropdown option {
+  color: black;
+  text-align: right;
+}
+
+.roleDropdown option[disabled] {
+  color: grey;
+}

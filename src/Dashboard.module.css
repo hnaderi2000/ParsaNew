@@ -1,0 +1,41 @@
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: auto auto;
+  width: 90vw;
+  max-width: 1600px;
+  height: 90vh;
+  max-height: 1000px;
+  transition: all 0.2s ease-in;
+}
+
+@media (max-width: 746px) {
+  .container {
+    flex-direction: column;
+    /* width: 100%; */
+  }
+  
+}
+
+
+.workspace {
+  width: 90%;
+  height: 100%;
+  border: 1px solid #cfcfcf;
+  border-radius: 8px;
+  background-color: #ffffff;
+  overflow-y: scroll;
+}
+
+::-webkit-scrollbar {
+  width: 2px;
+  /* background-color: transparent; */
+}
+@media (max-width: 746px) {
+  .workspace {
+    /* flex-direction: column; */
+    width: 100%;
+  }
+  
+}

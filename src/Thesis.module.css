@@ -1,0 +1,23 @@
+.container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.title {
+  margin: 20px;
+}
+
+.newParsaButton {
+  background-color: var(--green);
+  color: white;
+  text-decoration: none;
+  border-radius: var(--global-radius);
+  padding: 5px 15px;
+  display: inline-block;
+  cursor: pointer;
+  margin: 20px;
+  text-align: left;
+}
+
+
+

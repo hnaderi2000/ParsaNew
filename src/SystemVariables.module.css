@@ -1,0 +1,184 @@
+/* استایل‌های استفاده شده */
+.formActions {
+  display: flex;
+  /* gap: 10px; */
+}
+.editableInput {
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  width: 100%;
+  height: 38px; /* ارتفاع ثابت برای هماهنگی */
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+  background-color: #fff;
+  
+width: 100px; /* عرض ثابت برای ورودی‌ها */
+  max-width: 100%; /* جلوگیری از خروج از ستون */
+}
+
+.editableInput:focus {
+  border-color: #2196f3;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+}
+
+.editableInput[type="number"] {
+  text-align: center;
+}
+
+.actionButtons {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.container {
+  padding: 20px;
+}
+
+.newItemForm {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: var(--global-radius);
+  margin-bottom: 20px;
+  border: 1px solid var(--global-border-color);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.tableContainer {
+  overflow-x: auto;
+}
+
+.variablesTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.variablesTable th,
+.variablesTable td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: center;
+}
+
+.variablesTable th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+.variablesTable tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.variablesTable tr:hover {
+  background-color: #f1f1f1;
+}
+
+.noData {
+  text-align: center;
+  padding: 20px;
+  color: #777;
+}
+
+.error {
+  color: #f44336;
+  font-size: 0.8rem;
+  margin-top: 5px;
+  display: block;
+}
+
+.formGroup {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  width: 250px;
+  margin: 10px;
+}
+
+.formGroup input,
+.formGroup select {
+  /* width: 100px; */
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.formRow {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.activeRow {
+  background-color: #d4edda !important; /* سبز ملایم */
+}
+
+.activateButton {
+  color: white;
+}
+
+.activateButton:disabled {
+  background-color: #90caf9;
+  cursor: not-allowed;
+}
+
+/* --------------------------------------/ */
+.toggleSwitch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 36px;
+}
+
+.toggleInput {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* the ball */
+.toggleSlider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: var(--global-radius);
+}
+
+.toggleSlider:before {
+  position: absolute;
+  content: "";
+  height: 30px;
+  width: 10px;
+  left: 2px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: var(--global-radius);
+}
+
+.toggleInput:checked + .toggleSlider {
+  background-color: var(--blue);
+}
+
+.toggleInput:checked + .toggleSlider:before {
+  transform: translateX(26px);
+}
+
+.toggleInput:disabled + .toggleSlider {
+  cursor: not-allowed;
+  opacity: 0.7;
+}

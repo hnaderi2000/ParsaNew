@@ -1,0 +1,552 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  margin: 0px 20px;
+}
+
+.title {
+  margin: 20px 0px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.searchInput {
+  margin-bottom: 10px;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--global-border-color);
+  border-radius: var(--global-radius);
+  font-size: 14px;
+}
+
+/* Placeholder text centered */
+.input::placeholder {
+  text-align: center;
+}
+
+/* کانتینر جدول با قابلیت اسکرول افقی و عمودی همزمان */
+.tableContainer {
+  overflow: auto;
+  width: 100%;
+  max-height: 70vh;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--global-radius);
+  border: 1px solid var(--global-border-color);
+  background-color: white;
+}
+
+/* استایل اسکرول بار */
+.tableContainer::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.tableContainer::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.tableContainer::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.tableContainer::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* جدول اصلی */
+.thesisTable {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: collapse;
+  margin: 0;
+}
+
+/* استایل سلول‌ها */
+.thesisTable th,
+.thesisTable td {
+  border: 1px solid var(--global-border-color);
+  padding: 8px 12px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* جلوگیری از شکستن متن عنوان به خط بعد - در صورت نیاز */
+.thesisTable td:first-child,
+.thesisTable th:first-child {
+  position: sticky;
+  left: 0;
+  background-color: inherit;
+  z-index: 15;
+}
+
+/* ثابت نگه داشتن سربرگ */
+.thesisTable thead tr {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.thesisTable th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+  position: sticky;
+  top: 0;
+  box-shadow: 0 1px 0 0 var(--global-border-color);
+  z-index: 10;
+}
+
+/* رنگ پس‌زمینه سلول‌های بدنه */
+.thesisTable td {
+  background-color: white;
+}
+
+.thesisTable tr:nth-child(even) td {
+  background-color: #f9f9f9;
+}
+
+.thesisTable tr:hover td {
+  background-color: #f1f1f1;
+}
+
+.thesisTable td:nth-child(6),
+.thesisTable th:nth-child(6) {
+  min-width: 200px;
+  max-width: 300px;
+  white-space: normal;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+/* استایل دکمه‌های عملیات */
+.actions {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+}
+
+.editActions {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+}
+
+.professorsList {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.professorsList li {
+  margin-bottom: 5px;
+  white-space: nowrap;
+}
+
+.professorsEditContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 150px;
+}
+
+.professorTag {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #e1f5fe;
+  padding: 5px 10px;
+  border-radius: 4px;
+  gap: 5px;
+}
+
+.removeProfessorBtn {
+  background: none;
+  border: none;
+  color: #f44336;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0 5px;
+}
+
+.editInput,
+.editSelect {
+  width: 100%;
+  min-width: 120px;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+/* مودال‌ها */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modal1 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modalContent1 {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 100%;
+  max-width: fit-content;
+  max-height: 95vh;
+  overflow-y: auto;
+}
+
+/* انتخاب اساتید */
+.professorsListContainer {
+  max-height: 300px;
+  overflow-y: auto;
+  margin: 10px 0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.professorItem {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+}
+
+.professorItem:hover {
+  background-color: #f5f5f5;
+}
+
+.professorItem.selected {
+  background-color: #e3f2fd;
+}
+
+.participationInput {
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.participationField {
+  width: 60px;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.noResults {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+/* وضعیت‌ها */
+.approvedStatus {
+  background-color: #17a2b8;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 0.8em;
+  display: inline-block;
+}
+
+.rejectedStatus {
+  background-color: #f44336;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 0.8em;
+  display: inline-block;
+}
+
+.unknownStatus {
+  color: #666;
+  background-color: #f0f0f0;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  display: inline-block;
+}
+
+/* تاریخچه */
+.historyModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.historyModalContent {
+  background-color: white;
+  padding: 20px;
+  border-radius: var(--global-radius);
+  max-width: 800px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+/* Toggle Switch */
+.toggleSwitch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 36px;
+}
+
+.toggleInput {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggleSlider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: var(--global-radius);
+}
+
+.toggleSlider:before {
+  position: absolute;
+  content: "";
+  height: 30px;
+  width: 10px;
+  left: 2px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: var(--global-radius);
+}
+
+.toggleInput:checked + .toggleSlider {
+  background-color: var(--blue);
+}
+
+.toggleInput:checked + .toggleSlider:before {
+  transform: translateX(26px);
+}
+
+.toggleInput:disabled + .toggleSlider {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.toggleInput:disabled:checked + .toggleSlider {
+  background-color: #28a745;
+  opacity: 0.6;
+}
+
+/* عنوان قابل کلیک */
+.clickableTitle {
+  color: #007bff;
+  cursor: pointer;
+  transition: color 0.3s;
+  display: inline-block;
+  word-break: break-word;
+  white-space: normal;
+}
+.editInput {
+  width: 100%;
+  min-width: 200px;
+  max-width: 300px;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+
+.clickableTitle:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+/* فیلتر تاریخ */
+.dateFilterSection {
+  margin-bottom: 20px;
+  background-color: #f8f9fa;
+  border-radius: var(--global-radius);
+  border: 1px solid var(--global-border-color);
+  padding: 15px;
+}
+
+.dateFilter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: flex-end;
+}
+
+.dateFilter label {
+  font-weight: 500;
+  color: #555;
+  margin-left: 10px;
+}
+
+.datePickerGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.datePickerGroup span {
+  font-size: 14px;
+  color: #666;
+}
+
+.datePicker {
+  padding: 8px 12px;
+  border: 1px solid var(--global-border-color);
+  border-radius: var(--global-radius);
+  font-size: 14px;
+  width: 150px;
+}
+
+.datePicker:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.dateSearchButton {
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: var(--global-radius);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.3s;
+}
+
+.dateSearchButton:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.dateSearchButton:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.clearDateButton {
+  padding: 8px 16px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: var(--global-radius);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.3s;
+}
+
+.clearDateButton:hover {
+  background-color: #c82333;
+}
+
+.activeFilterBadge {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background-color: #e3f2fd;
+  border-radius: var(--global-radius);
+  font-size: 14px;
+  color: #0056b3;
+  display: inline-block;
+}
+
+/* مبلغ مصوب در حالت ویرایش */
+.approvedAmountEdit {
+  margin-top: 8px;
+  padding: 5px 8px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #28a745;
+  border-right: 3px solid #28a745;
+}
+
+.approvedAmountEdit small {
+  display: block;
+}
+
+/* بارگذاری و خطا */
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.errorContainer {
+  text-align: center;
+  padding: 20px;
+  color: #f44336;
+}
+
+.retryButton {
+  margin-top: 10px;
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}

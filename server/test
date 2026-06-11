@@ -1,0 +1,930 @@
+
+const sql = require("mssql");
+const express = require("express");
+const app = express();
+const cors = require("cors");
+const bcrypt = require('bcrypt');
+const saltRounds = 10; // تعداد دورهای هش کردن (هرچه بیشتر، امنیت بالاتر ولی پردازش سنگین‌تر)
+const jwt = require('jsonwebtoken'); // این خط را بالای فایل اضافه کنید
+const { createLogger } = require("vite");
+const path = require('path');
+const app = express();
+const multer = require('multer');
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+app.use(cors({
+  origin: 'http://localhost:5173',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+   exposedHeaders: ['Authorization'] // این خط را اضافه کنید
+}));
+app.use(express.json());
+
+const config = {
+  user: "sa",
+  password: "1234",
+  server: "localhost", 
+  database: "parsa",
+  port: 1433,
+  options: {
+    encrypt: false
+  }
+};
+const pool = new sql.ConnectionPool(config);
+const poolConnect = pool.connect();
+
+
+
+const checkAdminRole = (req, res, next) => {
+  if (!req.user.roles.includes('مدیر سیستم')) {
+    return res.status(403).json({ message: 'دسترسی غیرمجاز' });
+  }
+  next();
+};
+
+
+const authenticate = (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1]; // Bearer token
+  if (!token) return res.status(403).json({ message: 'ورود مجاز نیست.' });
+  
+  jwt.verify(token, 'your_jwt_secret', async (err, decoded) => {
+    if (err) return res.status(403).json({ message: 'توکن نامعتبر است.' });
+    
+    try {
+      const pool = await sql.connect(config);
+      const result = await pool.request()
+        .input('userId', sql.Int, decoded.id)
+        .query(`
+          SELECT r.name 
+          FROM user_roles ur
+          JOIN roles r ON ur.role_id = r.id
+          WHERE ur.user_id = @userId
+        `);
+      
+      req.user = {
+        id: decoded.id,
+        roles: result.recordset.map(row => row.name)
+      };
+      
+      next();
+    } catch (error) {
+      console.error("SQL error:", error);
+      res.status(500).send("خطای سرور");
+    }
+  });
+};
+
+/////login
+app.post('/login', async (req, res) => {
+  const { userName, password } = req.body;
+  
+  try {
+    let pool = await sql.connect(config);
+    const result = await pool.request()
+      .input('userName', sql.NVarChar, userName)
+      .query(`
+        SELECT 
+          u.id,
+          u.firstName,
+          u.lastName,
+          u.nationalCode,
+          u.userName,
+          u.password,
+          STUFF((
+            SELECT ', ' + r.name
+            FROM user_roles ur
+            JOIN roles r ON ur.role_id = r.id
+            WHERE ur.user_id = u.id
+            FOR XML PATH('')
+          ), 1, 2, '') AS roles
+        FROM users u
+        WHERE u.userName = @userName
+      `);
+    
+    if (result.recordset.length === 0) {
+      return res.status(401).json({ message: 'نام کاربری یا رمز عبور اشتباه است.' });
+    }
+    
+    const user = result.recordset[0];
+    const match = await bcrypt.compare(password, user.password);
+    
+    if (match) {
+      const token = jwt.sign({ 
+        id: user.id,
+        roles: user.roles ? user.roles.split(', ') : [] // اضافه کردن نقش‌ها به توکن
+      }, 'your_jwt_secret', { expiresIn: '1h' });
+      
+      const { password: _, ...userWithoutPassword } = user;
+      res.json({ 
+        token,
+        user: {
+          ...userWithoutPassword,
+          roles: user.roles ? user.roles.split(', ') : [] // اضافه کردن نقش‌ها به پاسخ
+        }
+      });
+    } else {
+      res.status(401).json({ message: 'نام کاربری یا رمز عبور اشتباه است.' });
+    }
+  } catch (err) {
+    console.error("SQL error:", err);
+    res.status(500).send(err.message);
+  } finally {
+    sql.close();
+  }
+});
+
+
+
+
+
+
+
+
+app.get("/roles", async (req, res) => {
+  try {
+    let pool = await sql.connect(config);
+    const result = await pool.request().query('SELECT id, name FROM roles');
+    res.json(result.recordset);
+  } catch (err) {
+    console.error("SQL error:", err);
+    res.status(500).send(err.message);
+  } finally {
+    sql.close();
+  }
+});
+
+
+
+
+// دریافت دانشجو بر اساس شماره دانشجویی (با فیلتر دانشکده برای کارشناس پژوهشی)
+app.get("/students/:studentId", authenticate, async (req, res) => {
+  try {
+    const { studentId } = req.params;
+    const userId = req.user.id;
+    
+    const pool = await sql.connect(config);
+    
+    // دریافت دانشکده کاربر (اگر کارشناس پژوهشی باشد)
+    let facultyFilter = "";
+    if (!req.user.roles.includes('مدیر سیستم')) {
+      const userResult = await pool.request()
+        .input('userId', sql.Int, userId)
+        .query('SELECT FacultyID FROM users WHERE id = @userId');
+      
+      if (userResult.recordset[0]?.FacultyID) {
+        facultyFilter = `AND s.FacultyID = ${userResult.recordset[0].FacultyID}`;
+      }
+    }
+    
+    const result = await pool.request()
+      .input('studentId', sql.NChar(10), studentId)
+      .query(`
+        SELECT 
+          s.StudentID,
+          s.FirstName,
+          s.LastName,
+          s.NationalID,
+          d.DepartmentName,
+          f.FacultyName,
+          el.LevelName
+        FROM students s
+        JOIN departments d ON s.DepartmentID = d.DepartmentID
+        JOIN faculties f ON s.FacultyID = f.FacultyID
+        LEFT JOIN educationlevels el ON s.LevelID = el.LevelID
+        WHERE s.StudentID = @studentId
+        ${facultyFilter}
+      `);
+    
+    if (result.recordset.length === 0) {
+      return res.status(404).json({ message: 'دانشجو یافت نشد یا شما مجوز دسترسی به این دانشجو را ندارید' });
+    }
+    
+    res.json(result.recordset[0]);
+  } catch (err) {
+    console.error("SQL error:", err);
+    res.status(500).send(err.message);
+  }
+});
+
+
+
+// دریافت لیست اساتید (کاربران با نقش عضو هیات علمی)
+
+
+
+
+
+
+// دریافت لیست پایان‌نامه‌ها با فیلترهای مختلف بر اساس نقش کاربر
+app.get("/theses", authenticate, async (req, res) => {
+  try {
+    const pool = await sql.connect(config);
+    
+    let query = `
+      SELECT 
+        t.ThesisID,
+        t.Title,
+        t.ThesisType,
+        t.StudentID,
+        s.FirstName + ' ' + s.LastName as StudentName,
+        el.LevelName,
+        el.LevelID,
+        f.FacultyName,
+        d.DepartmentName,
+        t.Deputy_Confirmation
+      FROM theses t
+      JOIN students s ON t.StudentID = s.StudentID
+      LEFT JOIN educationlevels el ON t.LevelID = el.LevelID
+      LEFT JOIN faculties f ON s.FacultyID = f.FacultyID
+      LEFT JOIN departments d ON s.DepartmentID = d.DepartmentID
+    `;
+
+    // فیلتر بر اساس نقش کاربر
+    if (req.user.roles.includes('کارشناس پژوهشی دانشکده')) {
+      // فقط پایان‌نامه‌های دانشکده خودش را ببیند
+      const userResult = await pool.request()
+        .input('userId', sql.Int, req.user.id)
+        .query('SELECT FacultyID FROM users WHERE id = @userId');
+      
+      if (userResult.recordset[0]?.FacultyID) {
+        query += ` WHERE s.FacultyID = ${userResult.recordset[0].FacultyID}`;
+      }
+    } else if (req.user.roles.includes('معاون پژوهشی دانشکده')) {
+      // فقط پایان‌نامه‌های دانشکده خودش  را ببیند
+      const userResult = await pool.request()
+        .input('userId', sql.Int, req.user.id)
+        .query('SELECT FacultyID FROM users WHERE id = @userId');
+      
+      if (userResult.recordset[0]?.FacultyID) {
+        query += ` WHERE s.FacultyID = ${userResult.recordset[0].FacultyID} `;
+      }
+    } else if (req.user.roles.includes('عضو هیات علمی')) {
+      // فقط پایان‌نامه‌هایی که تایید شده‌اند و استاد راهنمای آنهاست
+      const userResult = await pool.request()
+        .input('userId', sql.Int, req.user.id)
+        .query('SELECT nationalCode FROM users WHERE id = @userId');
+      
+      if (userResult.recordset[0]?.nationalCode) {
+        query += ` 
+          JOIN professors_students ps ON t.ThesisID = ps.ThesisID
+          WHERE ps.professornationalcode = '${userResult.recordset[0].nationalCode}'
+          AND t.Deputy_Confirmation = 1
+        `;
+      }
+    }
+
+    query += " ORDER BY t.ThesisID DESC";
+
+    const result = await pool.request().query(query);
+
+    // برای هر پایان‌نامه، اساتید مربوطه را دریافت کنید
+    const thesesWithProfessors = await Promise.all(
+      result.recordset.map(async (thesis) => {
+        const profResult = await pool.request()
+          .input('thesisId', sql.Int, thesis.ThesisID)
+          .query(`
+            SELECT 
+              p.firstName + ' ' + p.lastName as professorName,
+              ps.percentforprefessor,
+              p.nationalCode as professornationalcode
+            FROM professors_students ps
+            JOIN users p ON ps.professornationalcode = p.nationalCode
+            WHERE ps.ThesisID = @thesisId
+          `);
+        
+        return {
+          ...thesis,
+          professors: profResult.recordset
+        };
+      })
+    );
+
+    res.json(thesesWithProfessors);
+  } catch (err) {
+    console.error("SQL error:", err);
+    res.status(500).send(err.message);
+  }
+});
+
+// تابع کمکی برای ثبت تاریخچه
+const addThesisHistory = async (thesisId, status, description, userId = null) => {
+  try {
+    const pool = await sql.connect(config);
+    
+    // دریافت اطلاعات کاربر اگر userId وجود دارد
+    let userInfo = '';
+    if (userId) {
+      const userResult = await pool.request()
+        .input('userId', sql.Int, userId)
+        .query('SELECT firstName, lastName FROM users WHERE id = @userId');
+      
+      if (userResult.recordset.length > 0) {
+        userInfo = ` (${userResult.recordset[0].firstName} ${userResult.recordset[0].lastName})`;
+      }
+    }
+    
+    // دریافت تاریخ و زمان فعلی از سرور و تبدیل به تاریخ شمسی
+    const now = new Date();
+    const persianDate = new Intl.DateTimeFormat('fa-IR').format(now);
+    const persianTime = now.toLocaleTimeString('fa-IR');
+    
+    await pool.request()
+      .input('thesisId', sql.Int, thesisId)
+      .input('status', sql.NVarChar, status)
+      .input('description', sql.NVarChar, description + userInfo)
+      .input('persianDate', sql.NVarChar, persianDate)
+      .input('persianTime', sql.NVarChar, persianTime)
+      .query(`
+        INSERT INTO thesis_history 
+        (ThesisID, Status, Description, PersianDate, PersianTime)
+        VALUES (@thesisId, @status, @description, @persianDate, @persianTime)
+      `);
+  } catch (err) {
+    console.error("Error adding thesis history:", err);
+  }
+};
+//دریافت تاریخچه یک پایان نامه
+app.get("/theses/:thesisId/history", authenticate, async (req, res) => {
+  try {
+    const { thesisId } = req.params;
+    const pool = await sql.connect(config);
+    
+    const result = await pool.request()
+      .input('thesisId', sql.Int, thesisId)
+      .query(`
+        SELECT 
+          HistoryID,
+          Status,
+          Description,
+          PersianDate,
+          PersianTime
+        FROM thesis_history
+        WHERE ThesisID = @thesisId
+        ORDER BY HistoryID DESC
+      `);
+    
+    res.json(result.recordset);
+  } catch (err) {
+    console.error("SQL error:", err);
+    res.status(500).send(err.message);
+  }
+});
+// ثبت پایان‌نامه جدید
+// app.post("/theses", authenticate, async (req, res) => {
+//   const pool = await sql.connect(config);
+//   const transaction = new sql.Transaction(pool);
+  
+//   try {
+//     const { 
+//       studentId, 
+//       title, 
+//       thesisType, 
+//       levelId,
+//       professors ,
+//       ApprovedAmount, // دریافت مبلغ مصوب
+//       parsaType // دریافت نوع پارسا (p یا r)
+
+      
+//     } = req.body;
+//     console.log(parsaType);
+//     // اعتبارسنجی نقش کاربر
+//     if (!req.user.roles.includes('مدیر سیستم') && !req.user.roles.includes('کارشناس پژوهشی دانشکده')) {
+//       return res.status(403).send('شما مجوز ثبت پایان‌نامه را ندارید');
+//     }
+
+//     // اعتبارسنجی فیلدها
+//     if (!studentId || !title || !thesisType || !levelId || !professors || professors.length === 0) {
+//       return res.status(400).send("تمام فیلدهای الزامی هستند");
+//     }
+
+//     // بررسی مجموع درصد مشارکت اساتید
+//     const totalParticipation = professors.reduce(
+//       (sum, p) => sum + parseInt(p.participation || 0),
+//       0
+//     );
+//     if (totalParticipation !== 100) {
+//       return res.status(400).send("مجموع درصد مشارکت اساتید باید ۱۰۰ باشد");
+//     }
+
+//     await transaction.begin();
+    
+//     // ثبت پایان‌نامه
+//     const thesisResult = await transaction.request()
+//       .input('StudentID', sql.NChar(10), studentId)
+//       .input('Title', sql.NVarChar, title)
+//       .input('ThesisType', sql.NVarChar, thesisType)
+//       .input('LevelID', sql.Int, levelId)
+//       .input('ApprovedAmount', sql.Int, ApprovedAmount)
+//       .input('ParsaType', sql.NVarChar(1), parsaType) // اضافه کردن پارامتر ParsaType
+//       .query(`
+//         INSERT INTO theses (StudentID, Title, ThesisType, LevelID,ApprovedAmount,ParsaType)
+//         OUTPUT INSERTED.ThesisID
+//         VALUES (@StudentID, @Title, @ThesisType, @LevelID,@ApprovedAmount,@ParsaType)
+//       `);
+    
+//     const thesisId = thesisResult.recordset[0].ThesisID;
+
+// //  ثبت اساتید راهنما و درصد مشارکت آنها
+//     for (const professor of professors) {
+ 
+//       await transaction.request()
+//         .input('ThesisID', sql.Int, thesisId)
+//         .input('professornationalcode', sql.NVarChar(10), professor.nationalCode)
+//         .input('StudentID', sql.NChar(10), studentId)
+//         .input('ParticipationPercentage', sql.Int, professor.participation)
+//         .query(`
+//           INSERT INTO professors_students (professornationalcode, student_id,ThesisID, percentforprefessor)
+//           VALUES (@professornationalcode, @StudentID,@ThesisID, @ParticipationPercentage)
+//         `);
+//     }
+    
+//     await transaction.commit();
+//     // ثبت تاریخچه
+//     await addThesisHistory(
+//       thesisId, 
+//       'ثبت پایان‌نامه', 
+//       'پایان‌نامه جدید توسط کارشناس پژوهشی دانشکده ثبت شد',
+//       req.user.id
+//     );
+//     res.status(201).send("پایان‌نامه با موفقیت ثبت شد");
+//   } catch (err) {
+//     await transaction.rollback();
+//     console.error("SQL error:", err);
+//     res.status(500).send(err.message);
+//   }
+// });
+
+// ثبت پایان‌نامه جدید
+app.post("/theses", authenticate, async (req, res) => {
+  const pool = await sql.connect(config);
+  const transaction = new sql.Transaction(pool);
+  
+  try {
+    const { 
+      studentId, 
+      title, 
+      thesisType, 
+      levelId,
+      professors,
+      ApprovedAmount,
+      parsaType
+    } = req.body;
+
+    // اعتبارسنجی نقش کاربر
+    if (!req.user.roles.includes('مدیر سیستم') && !req.user.roles.includes('کارشناس پژوهشی دانشکده')) {
+      return res.status(403).send('شما مجوز ثبت پایان‌نامه را ندارید');
+    }
+
+    // اعتبارسنجی فیلدها
+    if (!studentId || !title || !thesisType || !levelId || !professors || professors.length === 0) {
+      return res.status(400).send("تمام فیلدهای الزامی هستند");
+    }
+
+    // بررسی مجموع درصد مشارکت اساتید
+    const totalParticipation = professors.reduce(
+      (sum, p) => sum + parseInt(p.participation || 0),
+      0
+    );
+    if (totalParticipation !== 100) {
+      return res.status(400).send("مجموع درصد مشارکت اساتید باید ۱۰۰ باشد");
+    }
+
+    // بررسی وجود دانشجو در دیتابیس
+    const studentCheck = await pool.request()
+      .input('studentId', sql.NChar(10), studentId)
+      .query(`
+        SELECT StudentID
+        FROM students
+        WHERE StudentID = @studentId
+      `);
+
+    if (studentCheck.recordset.length === 0) {
+      return res.status(404).send("دانشجو با این شماره دانشجویی یافت نشد");
+    }
+
+    await transaction.begin();
+    
+    // ثبت پایان‌نامه
+    const thesisResult = await transaction.request()
+      .input('StudentID', sql.NChar(10), studentId)
+      .input('Title', sql.NVarChar, title)
+      .input('ThesisType', sql.NVarChar, thesisType)
+      .input('LevelID', sql.Int, levelId)
+      .input('ApprovedAmount', sql.Int, ApprovedAmount)
+      .input('ParsaType', sql.NVarChar(1), parsaType)
+      .query(`
+        INSERT INTO theses (StudentID, Title, ThesisType, LevelID, ApprovedAmount, ParsaType)
+        OUTPUT INSERTED.ThesisID
+        VALUES (@StudentID, @Title, @ThesisType, @LevelID, @ApprovedAmount, @ParsaType)
+      `);
+    
+    const thesisId = thesisResult.recordset[0].ThesisID;
+
+    // ثبت اساتید راهنما و درصد مشارکت آنها
+    for (const professor of professors) {
+      await transaction.request()
+        .input('ThesisID', sql.Int, thesisId)
+        .input('professornationalcode', sql.NVarChar(10), professor.nationalCode)
+        .input('StudentID', sql.NChar(10), studentId)
+        .input('ParticipationPercentage', sql.Int, professor.participation)
+        .query(`
+          INSERT INTO professors_students (professornationalcode, student_id, ThesisID, percentforprefessor)
+          VALUES (@professornationalcode, @StudentID, @ThesisID, @ParticipationPercentage)
+        `);
+    }
+    
+    await transaction.commit();
+    
+    // ثبت تاریخچه
+    await addThesisHistory(
+      thesisId, 
+      'ثبت پایان‌نامه', 
+      'پایان‌نامه جدید توسط کارشناس پژوهشی دانشکده ثبت شد',
+      req.user.id
+    );
+    
+    res.status(201).send("پایان‌نامه با موفقیت ثبت شد");
+  } catch (err) {
+    await transaction.rollback();
+    console.error("SQL error:", err);
+    res.status(500).send(err.message);
+  }
+});
+
+// تایید/رد پایان‌نامه توسط معاون پژوهشی
+app.put("/theses/:thesisId/confirm", authenticate, async (req, res) => {
+  try {
+    const { thesisId } = req.params;
+    const { confirm } = req.body;
+    
+    // بررسی نقش کاربر
+    if (!req.user.roles.includes('معاون پژوهشی دانشکده')) {
+      return res.status(403).send('شما مجوز تایید پایان‌نامه را ندارید');
+    }
+
+    const pool = await sql.connect(config);
+    
+    // بررسی اینکه پایان‌نامه مربوط به دانشکده کاربر است
+    const checkResult = await pool.request()
+      .input('thesisId', sql.Int, thesisId)
+      .input('userId', sql.Int, req.user.id)
+      .query(`
+        SELECT t.ThesisID
+        FROM theses t
+        JOIN students s ON t.StudentID = s.StudentID
+        JOIN users u ON s.FacultyID = u.FacultyID
+        WHERE t.ThesisID = @thesisId AND u.id = @userId
+      `);
+    
+    if (checkResult.recordset.length === 0) {
+      return res.status(403).send('شما فقط می‌توانید پایان‌نامه‌های دانشکده خود را تایید کنید');
+    }
+
+    // به‌روزرسانی وضعیت تایید
+    await pool.request()
+      .input('thesisId', sql.Int, thesisId)
+      .input('confirm', sql.Bit, confirm)
+      .query(`
+        UPDATE theses
+        SET Deputy_Confirmation = @confirm
+        WHERE ThesisID = @thesisId
+      `);
+    // ثبت تاریخچه
+    const action = confirm ? 'تایید' : 'رد';
+    await addThesisHistory(
+      thesisId, 
+      `${action} پایان‌نامه`, 
+      `پایان‌نامه توسط معاون پژوهشی دانشکده ${action} شد`,
+      req.user.id
+    );
+    res.status(200).send(confirm ? 'پایان‌نامه با موفقیت تایید شد' : 'تایید پایان‌نامه لغو شد');
+  } catch (err) {
+    console.error("SQL error:", err);
+    res.status(500).send(err.message);
+  }
+});
+//ویرایش پایان نامه
+app.put("/theses/:thesisId", authenticate, async (req, res) => {
+  const pool = await sql.connect(config);
+  const transaction = new sql.Transaction(pool);
+
+  try {
+    const { thesisId } = req.params;
+    const { 
+      title, 
+      thesisType, 
+      levelId,
+      professors,
+      studentId // اضافه کردن studentId از body درخواست
+    } = req.body;
+
+    // اعتبارسنجی
+    if (!title || !thesisType || !levelId || !professors || professors.length === 0 || !studentId) {
+      return res.status(400).send("تمام فیلدهای الزامی هستند");
+    }
+
+    // بررسی مجموع درصد مشارکت
+    const totalParticipation = professors.reduce(
+      (sum, p) => sum + parseInt(p.participation || 0),
+      0
+    );
+    if (totalParticipation !== 100) {
+      return res.status(400).send("مجموع درصد مشارکت اساتید باید ۱۰۰ باشد");
+    }
+
+    await transaction.begin();
+
+    // به‌روزرسانی اطلاعات پایه پایان‌نامه
+    await transaction.request()
+      .input('thesisId', sql.Int, thesisId)
+      .input('Title',  title)
+      .input('thesisType', sql.NVarChar, thesisType)
+      .input('levelId', sql.Int, levelId)
+      .query(`
+        UPDATE theses 
+        SET 
+          Title = @Title,
+          ThesisType = @thesisType,
+          LevelID = @levelId
+        WHERE ThesisID = @thesisId
+      `);
+
+    // حذف اساتید قبلی
+    await transaction.request()
+      .input('thesisId', sql.Int, thesisId)
+      .query('DELETE FROM professors_students WHERE ThesisID = @thesisId');
+
+    // اضافه کردن اساتید جدید
+    for (const professor of professors) {
+      await transaction.request()
+        .input('thesisId', sql.Int, thesisId)
+        .input('professorId', sql.NVarChar, professor.nationalCode)
+        .input('student_id',  studentId) // استفاده از studentId دریافت شده
+        .input('participation', sql.Int, professor.participation)
+        .query(`
+          INSERT INTO professors_students (ThesisID, professornationalcode, student_id, percentforprefessor)
+          VALUES (@thesisId, @professorId, @student_id, @participation)
+        `);
+    }
+
+    await transaction.commit();
+    res.status(200).send("پایان‌نامه با موفقیت ویرایش شد");
+  } catch (err) {
+    await transaction.rollback();
+    console.error("SQL error:", err);
+    res.status(500).send(err.message);
+  }
+});
+
+// حذف پایان‌نامه
+// حذف پایان‌نامه
+app.delete("/theses/:thesisId", authenticate, async (req, res) => {
+  const pool = await sql.connect(config);
+  const transaction = new sql.Transaction(pool);
+  
+  try {
+    const { thesisId } = req.params;
+
+    await transaction.begin();
+    
+    // 1. حذف روابط اساتید
+    await transaction.request()
+      .input('thesisId', sql.Int, thesisId)
+      .query('DELETE FROM professors_students WHERE ThesisID = @thesisId');
+    
+    // 2. حذف خود پایان‌نامه
+    const result = await transaction.request()
+      .input('thesisId', sql.Int, thesisId)
+      .query('DELETE FROM theses WHERE ThesisID = @thesisId');
+    
+    if (result.rowsAffected[0] === 0) {
+      await transaction.rollback();
+      return res.status(404).send("پایان‌نامه مورد نظر یافت نشد");
+    }
+    
+    await transaction.commit();
+    res.status(200).send("پایان‌نامه با موفقیت حذف شد");
+  } catch (err) {
+    await transaction.rollback();
+    console.error("SQL error:", err);
+    res.status(500).send(err.message);
+  }
+});
+  
+//////////////
+app.get("/departments/faculty/:facultyId", authenticate, async (req, res) => {
+  try {
+    const { facultyId } = req.params;
+    const pool = await sql.connect(config);
+    const result = await pool.request()
+      .input('facultyId', sql.Int, facultyId)
+      .query(`
+        SELECT DepartmentID, DepartmentName, FacultyID
+        FROM departments
+        WHERE FacultyID = @facultyId
+        ORDER BY DepartmentName
+      `);
+    
+    res.json(result.recordset);
+  } catch (err) {
+    console.error("SQL error:", err);
+    res.status(500).send(err.message);
+  }
+});
+
+// Add new department
+app.post("/departments", authenticate, checkAdminRole, async (req, res) => {
+  const pool = await sql.connect(config);
+  const transaction = new sql.Transaction(pool);
+  
+  try {
+    const { departmentName, facultyId } = req.body;
+    
+    if (!departmentName || !facultyId) {
+      return res.status(400).send("نام گروه و دانشکده الزامی هستند");
+    }
+
+    await transaction.begin();
+    
+    const result = await transaction.request()
+      .input('departmentName', sql.NVarChar, departmentName)
+      .input('facultyId', sql.Int, facultyId)
+      .query(`
+        INSERT INTO departments (DepartmentName, FacultyID)
+        OUTPUT INSERTED.DepartmentID
+        VALUES (@departmentName, @facultyId)
+      `);
+    
+    await transaction.commit();
+    res.status(201).send("گروه با موفقیت اضافه شد");
+  } catch (err) {
+    await transaction.rollback();
+    console.error("SQL error:", err);
+    res.status(500).send(err.message);
+  }
+});
+
+// Update department
+app.put("/departments/:departmentId", authenticate, checkAdminRole, async (req, res) => {
+  const pool = await sql.connect(config);
+  const transaction = new sql.Transaction(pool);
+  
+  try {
+    const { departmentId } = req.params;
+    const { departmentName, facultyId } = req.body;
+    
+    if (!departmentName || !facultyId) {
+      return res.status(400).send("نام گروه و دانشکده الزامی هستند");
+    }
+
+    await transaction.begin();
+    
+    const result = await transaction.request()
+      .input('departmentId', sql.Int, departmentId)
+      .input('departmentName', sql.NVarChar, departmentName)
+      .input('facultyId', sql.Int, facultyId)
+      .query(`
+        UPDATE departments
+        SET DepartmentName = @departmentName, FacultyID = @facultyId
+        WHERE DepartmentID = @departmentId
+      `);
+    
+    if (result.rowsAffected[0] === 0) {
+      await transaction.rollback();
+      return res.status(404).send("گروه مورد نظر یافت نشد");
+    }
+    
+    await transaction.commit();
+    res.status(200).send("گروه با موفقیت ویرایش شد");
+  } catch (err) {
+    await transaction.rollback();
+    console.error("SQL error:", err);
+    res.status(500).send(err.message);
+  }
+});
+
+// Delete department
+app.delete("/departments/:departmentId", authenticate, checkAdminRole, async (req, res) => {
+  const pool = await sql.connect(config);
+  const transaction = new sql.Transaction(pool);
+  
+  try {
+    const { departmentId } = req.params;
+    
+    await transaction.begin();
+    
+    const result = await transaction.request()
+      .input('departmentId', sql.Int, departmentId)
+      .query('DELETE FROM departments WHERE DepartmentID = @departmentId');
+    
+    if (result.rowsAffected[0] === 0) {
+      await transaction.rollback();
+      return res.status(404).send("گروه مورد نظر یافت نشد");
+    }
+    
+    await transaction.commit();
+    res.status(200).send("گروه با موفقیت حذف شد");
+  } catch (err) {
+    await transaction.rollback();
+    console.error("SQL error:", err);
+    res.status(500).send(err.message);
+  }
+});
+/////////////
+ثبت فاکتور هزینه برای پایان‌نامه
+app.post("/theses/:thesisId/factors", authenticate, async (req, res) => {
+  try {
+    const { thesisId } = req.params;
+    console.log(thesisId);
+    // بررسی نقش کاربر
+    if (!req.user.roles.includes('عضو هیات علمی')) {
+      return res.status(403).send('شما مجوز ثبت هزینه را ندارید');
+    }
+
+    // بررسی اینکه استاد راهنمای این پایان‌نامه هست یا نه
+    const pool = await sql.connect(config);
+    const checkResult = await pool.request()
+      .input('thesisId', sql.Int, thesisId)
+      .input('professorId', sql.NVarChar, req.user.nationalCode)
+      .query(`
+        SELECT 1 
+        FROM professors_students 
+        WHERE ThesisID = @thesisId AND professornationalcode = @professorId
+      `);
+    
+    if (checkResult.recordset.length === 0) {
+      return res.status(403).send('شما استاد راهنمای این پایان‌نامه نیستید');
+    }
+
+    if (!req.file) {
+      return res.status(400).send('فایل فاکتور الزامی است');
+    }
+
+    const { factorNumber, factorDate, amount, description } = req.body;
+    const filePath = `/uploads/factors/${Date.now()}_${req.file.originalname}`;
+
+    // ذخیره فایل در سیستم
+    const fs = require('fs');
+    fs.writeFileSync(`.${filePath}`, req.file.buffer);
+
+    // ذخیره اطلاعات در دیتابیس
+    await pool.request()
+      .input('thesisId', sql.Int, thesisId)
+      .input('factorNumber', sql.NVarChar, factorNumber)
+      .input('factorDate', sql.NVarChar, factorDate)
+      .input('amount', sql.Decimal, amount)
+      .input('description', sql.NVarChar, description)
+      .input('filePath', sql.NVarChar, filePath)
+      .query(`
+        INSERT INTO factors 
+        (ThesisID, FactorNumber, FactorDate, Amount, Description, Filepath)
+        VALUES 
+        (@thesisId, @factorNumber, @factorDate, @amount, @description, @filePath)
+      `);
+
+    res.status(201).send('فاکتور با موفقیت ثبت شد');
+  } catch (err) {
+    console.error("Error saving factor:", err);
+    res.status(500).send(err.message);
+  }
+});
+
+
+
+
+// دریافت لیست فاکتورهای یک پایان‌نامه
+app.get("/theses/:thesisId/factors", authenticate, async (req, res) => {
+  try {
+    const { thesisId } = req.params;
+    
+    const pool = await sql.connect(config);
+    const result = await pool.request()
+      .input('thesisId', sql.Int, thesisId)
+      .query(`
+        SELECT 
+          FactorID,
+          FactorNumber,
+          FactorDate,
+          Amount,
+          Description,
+          Filepath,
+          IsConfirmed
+        FROM factors
+        WHERE ThesisID = @thesisId
+        ORDER BY FactorDate DESC
+      `);
+    
+    res.json(result.recordset);
+  } catch (err) {
+    console.error("Error fetching factors:", err);
+    res.status(500).send(err.message);
+  }
+});
+////////////
+
+
+
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+app.listen(3001, '0.0.0.0', () => console.log('Server running on port 3001'));

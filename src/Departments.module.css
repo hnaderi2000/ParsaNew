@@ -1,0 +1,75 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin: 0px 20px;
+}
+
+.title,
+.subtitle {
+  margin: 20px 0px;
+}
+
+.section {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.rowLayout {
+  display: flex;
+  gap: 1rem; /* This creates equal spacing between items */
+  align-items: center;
+  width: 100%;
+}
+
+.form {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  flex: 2; /* The form takes twice the space (for input + button) */
+  gap: 1rem;
+}
+
+.section select,
+.form input,
+.list input {
+  flex: 1;
+  /* height: 40px; */
+  width: var(--global-input-width);
+  padding: 8px;
+  border: 1px solid var(--global-border-color);
+  border-radius: var(--global-radius);
+  font-family: inherit;
+  outline: none;
+  margin-right: 15px;
+  background-color: transparent;
+  flex: 1;
+}
+
+.buttons {
+  display: flex;
+  width: 130px;
+  justify-content: space-between;
+}
+/* ----------------------------------------------------------- */
+
+.list {
+  list-style: none;
+}
+
+.list li,
+.list li div {
+  border-bottom: 1px solid var(--global-border-color);
+  display: flex;
+  align-items: center;
+  height: 40px;
+  padding: 0px 20px;
+}
+
+.list li span {
+  width: 100px;
+}

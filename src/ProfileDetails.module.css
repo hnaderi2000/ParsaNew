@@ -1,0 +1,112 @@
+.container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* backdrop-filter: blur(3px); */
+  background-color: rgba(0, 0, 0, 0.5);
+
+  border: 1px solid var(--global-border-color);
+  overflow-y: scroll;
+  z-index: 10;
+}
+
+.window {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 800px;
+  margin: auto;
+  padding: 20px;
+  margin-top: 50px;
+  background-color: #ffffff;
+  border: var(--global-border-color) 2px solid;
+  border-radius: 20px;
+  z-index: 1000;
+}
+
+.card {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 800px;
+  margin: 20px 0px;
+}
+
+@media (max-width: 746px) {
+  .card {
+    flex-direction: column;
+    /* width: 100%; */
+  }
+}
+.right,
+.left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.right img {
+  width: 200px;
+  height: 200px;
+  border-radius: 100px;
+  padding: 4px;
+  border: 1px solid var(--global-border-color);
+  margin-bottom: 20px;
+}
+
+.left h2 {
+  width: 400px;
+  padding-bottom: 5px;
+  text-align: center;
+  margin-bottom: 10px;
+  border-bottom: 2px solid var(--global-border-color); /* adjust color/style as you like */
+}
+
+.table tr {
+  display: flex;
+  justify-content: center;
+  border-bottom: 1px solid var(--global-border-color);
+  margin: 15px 0px;
+  width: 400px;
+}
+
+.table tr td:first-child {
+  width: 100px;
+}
+
+.table tr td:last-child {
+  width: 200px;
+  text-align: center;
+}
+
+.table svg {
+  margin-left: 5px;
+}
+
+.buttons {
+  display: flex;
+  margin-top: 10px;
+}
+
+.button {
+  border: none;
+  color: white;
+  padding: 5px 15px;
+  border-radius: var(--global-radius);
+  margin: 0px 5px;
+}
+
+.close {
+  background-color: var(--red);
+}
+
+.changePassword {
+  background-color: var(--blue);
+}
+
+.button:hover {
+  filter: brightness(80%);
+  cursor: pointer;
+}

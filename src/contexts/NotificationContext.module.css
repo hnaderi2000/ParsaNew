@@ -1,0 +1,49 @@
+/* Base notification style */
+.notification {
+  color: white;
+  width: 300px;
+  text-align: center;
+  margin: 5px 0; /* smaller margin for stacking */
+  border-radius: var(--global-radius);
+  padding: 15px 0;
+  animation: fadeOut 5s forwards;
+  display: flex;
+
+
+  align-items: center; /* Vertical centering */
+  justify-content: center; /* Horizontal centering */
+  padding-left: 20px;
+}
+
+.closeButton {
+  position: absolute;
+  left: 10px;
+  cursor: pointer;
+}
+
+/* Container fixed to bottom-right corner */
+.notificationsContainer {
+  position: fixed;
+  right: 20px;
+  bottom: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end; /* align notifications to the right */
+  z-index: 9999;
+}
+
+/* Animation fadeOut */
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  90% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}

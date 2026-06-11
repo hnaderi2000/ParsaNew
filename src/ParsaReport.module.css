@@ -1,0 +1,605 @@
+/* .container {
+  padding: 20px;
+  direction: rtl;
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+/* فیلتر تاریخ */
+.dateFilter {
+  display: flex;
+  gap: 20px;
+  align-items: flex-end;
+  margin-bottom: 30px;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: var(--global-radius);
+  border: 1px solid var(--global-border-color);
+}
+
+.datePickerGroup {
+  flex: 1;
+}
+
+.datePickerGroup label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #555;
+}
+
+.datePicker {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--global-border-color);
+  border-radius: var(--global-radius);
+  font-size: 14px;
+}
+
+.datePicker:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.searchButton {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: var(--global-radius);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.3s;
+}
+
+.searchButton:hover {
+  background-color: #0056b3;
+}
+
+.searchButton.disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* جستجو و عملیات */
+.actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 20px;
+}
+
+.searchBox {
+  flex: 1;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--global-border-color);
+  border-radius: var(--global-radius);
+  font-size: 14px;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 10px;
+}
+
+.exportButton {
+  padding: 10px 20px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: var(--global-radius);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.3s;
+}
+
+.exportButton:hover:not(:disabled) {
+  background-color: #218838;
+}
+
+.exportButton:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.guideButton {
+  padding: 10px 20px;
+  background-color: #17a2b8;
+  color: white;
+  border: none;
+  border-radius: var(--global-radius);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.3s;
+}
+
+.guideButton:hover {
+  background-color: #138496;
+}
+
+/* جدول */
+.tableContainer {
+  overflow-x: auto;
+  margin-bottom: 20px;
+  border: 1px solid var(--global-border-color);
+  border-radius: var(--global-radius);
+}
+
+.reportTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.reportTable th,
+.reportTable td {
+  padding: 12px;
+  border: 1px solid var(--global-border-color);
+  text-align: center;
+}
+
+.reportTable th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+  position: sticky;
+  top: 0;
+}
+
+.reportTable tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.reportTable tr:hover {
+  background-color: #f1f1f1;
+}
+
+.noResults {
+  text-align: center;
+  padding: 40px !important;
+  color: #666;
+}
+
+/* صفحه‌بندی */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.pageButton {
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.pageButton:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.pageButton:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.pageInfo {
+  font-weight: 500;
+}
+
+/* خلاصه گزارش */
+.summary {
+  display: flex;
+  justify-content: space-around;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: var(--global-radius);
+  border: 1px solid var(--global-border-color);
+  margin-top: 20px;
+}
+
+.summaryItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.summaryItem span {
+  color: #666;
+  font-size: 14px;
+}
+
+.summaryItem strong {
+  color: #333;
+  font-size: 18px;
+}
+
+/* لودینگ */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+  gap: 20px;
+}
+
+/* وضعیت خالی */
+.emptyState {
+  text-align: center;
+  padding: 60px;
+  color: #666;
+  background-color: #f8f9fa;
+  border-radius: var(--global-radius);
+  border: 1px dashed var(--global-border-color);
+}
+
+/* دسترسی غیرمجاز */
+.accessDenied {
+  text-align: center;
+  padding: 60px;
+  color: #dc3545;
+}
+
+.accessDenied h2 {
+  margin-bottom: 20px;
+}
+
+/* راهنمای خروجی اکسل */
+.exportGuide {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: var(--global-radius);
+  padding: 15px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  position: relative;
+}
+
+.exportGuideHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.exportGuide h4 {
+  margin: 0;
+  color: #495057;
+}
+
+.closeGuideButton {
+  background: none;
+  border: none;
+  color: #6c757d;
+  cursor: pointer;
+  padding: 5px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.3s;
+}
+
+.closeGuideButton:hover {
+  color: #dc3545;
+}
+
+.exportGuide ol {
+  margin: 0;
+  padding-right: 20px;
+}
+
+.exportGuide li {
+  margin-bottom: 8px;
+  color: #6c757d;
+}
+
+/* اضافه کردن به انتهای فایل ParsaReport.module.css */
+
+/* بخش انتخاب تاریخ پایان اعتبار */
+.expirySection {
+  background-color: #e8f4f8;
+  border: 1px solid #b8e1f0;
+  border-radius: var(--global-radius);
+  padding: 15px 20px;
+  margin-bottom: 20px;
+}
+
+.expiryControls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: flex-end;
+  margin-bottom: 10px;
+}
+
+.expiryDatePicker {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 2;
+  min-width: 200px;
+}
+
+.expiryDatePicker label {
+  font-weight: 500;
+  color: #0c5460;
+}
+
+.expiryActions {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+}
+
+.applyExpiryButton {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: var(--global-radius);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.3s;
+  white-space: nowrap;
+}
+
+.applyExpiryButton:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.applyExpiryButton:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.clearSelectionButton {
+  padding: 10px 20px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: var(--global-radius);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.3s;
+  white-space: nowrap;
+}
+
+.clearSelectionButton:hover {
+  background-color: #c82333;
+}
+
+.selectionInfo {
+  padding-top: 8px;
+  border-top: 1px dashed #b8e1f0;
+}
+
+.selectedCount {
+  color: #007bff;
+  font-weight: 500;
+}
+
+/* چک‌باکس */
+.checkbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+/* ردیف انتخاب شده */
+.selectedRow {
+  background-color: #e8f4f8 !important;
+}
+
+.selectedRow:hover {
+  background-color: #d4edf5 !important;
+}
+
+/* ستون تاریخ پایان اعتبار */
+.hasExpiryDate {
+  color: #28a745;
+  font-weight: 500;
+}
+
+/* ریسپانسیو */
+@media (max-width: 1200px) {
+  .expiryControls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .expiryActions {
+    flex-direction: column;
+  }
+  
+  .applyExpiryButton,
+  .clearSelectionButton {
+    justify-content: center;
+  }
+  
+  .reportTable {
+    font-size: 12px;
+  }
+  
+  .reportTable th,
+  .reportTable td {
+    padding: 8px;
+  }
+} 
+
+/* اضافه کردن به انتهای فایل ParsaReport.module.css */
+
+/* چک‌باکس */
+.checkbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.checkboxButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #007bff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.checkboxButton:hover {
+  color: #0056b3;
+}
+
+/* ردیف انتخاب شده */
+.selectedRow {
+  background-color: #e8f4f8 !important;
+}
+
+.selectedRow:hover {
+  background-color: #d4edf5 !important;
+}
+
+/* ستون تاریخ انقضا */
+.hasExpiryDate {
+  color: #28a745;
+  font-weight: 500;
+}
+
+/* بخش انتخاب تاریخ انقضا */
+.expirySection {
+  background-color: #e8f4f8;
+  border: 1px solid #b8e1f0;
+  border-radius: var(--global-radius);
+  padding: 15px 20px;
+  margin-bottom: 20px;
+}
+
+.expiryControls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: flex-end;
+  margin-bottom: 10px;
+}
+
+.expiryDatePicker {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 2;
+  min-width: 200px;
+}
+
+.expiryDatePicker label {
+  font-weight: 500;
+  color: #0c5460;
+}
+
+.expiryActions {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+}
+
+.applyExpiryButton {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: var(--global-radius);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.3s;
+  white-space: nowrap;
+}
+
+.applyExpiryButton:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.applyExpiryButton:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.clearSelectionButton {
+  padding: 10px 20px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: var(--global-radius);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.3s;
+  white-space: nowrap;
+}
+
+.clearSelectionButton:hover {
+  background-color: #c82333;
+}
+
+.selectionInfo {
+  padding-top: 8px;
+  border-top: 1px dashed #b8e1f0;
+}
+
+.selectedCount {
+  color: #007bff;
+  font-weight: 500;
+}
+
+/* ریسپانسیو */
+@media (max-width: 1200px) {
+  .expiryControls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .expiryActions {
+    flex-direction: column;
+  }
+  
+  .applyExpiryButton,
+  .clearSelectionButton {
+    justify-content: center;
+  }
+  
+  .reportTable {
+    font-size: 12px;
+  }
+  
+  .reportTable th,
+  .reportTable td {
+    padding: 8px;
+  }
+}

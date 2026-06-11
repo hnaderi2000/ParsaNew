@@ -1,0 +1,384 @@
+.container {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: var(--global-radius);
+}
+
+.title {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.form {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: var(--global-radius);
+  margin-bottom: 20px;
+  border: 1px solid var(--global-border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.formGroup label {
+  font-weight: 600;
+  color: #444;
+}
+
+.formGroup input,
+.formGroup textarea,
+.formGroup select,
+.datePickerGroup input {
+  padding: 10px;
+  border: 1px solid var(--global-border-color);
+  border-radius: var(--global-radius);
+  font-size: 14px;
+}
+
+.formGroup textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.errorInput {
+  border-color: #ff4444 !important;
+}
+
+.errorMessage {
+  color: #ff4444;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.fileInputContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.fileInputLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 15px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.fileInputLabel:hover {
+  background-color: #e0e0e0;
+}
+
+.fileInput {
+  display: none;
+}
+
+.filePreview {
+  font-size: 13px;
+  color: #666;
+  padding: 5px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.submitButton {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.submitButton:hover {
+  background-color: #45a049;
+}
+
+.submitButton.disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.cancelButton {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 20px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.cancelButton:hover {
+  background-color: #d32f2f;
+}
+
+.deleteButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.deleteButton:hover {
+  background-color: #d32f2f;
+}
+
+.errorContainer {
+  padding: 20px;
+  background-color: #ffebee;
+  color: #d32f2f;
+  border-radius: 4px;
+  text-align: center;
+  margin: 20px;
+}
+
+.datePickerGroup input {
+  width: 100%;
+  font-family: inherit;
+  height: 42px;
+}
+
+.datePickerGroup input:focus {
+  outline: none;
+}
+
+.react-datepicker {
+  font-family: inherit;
+  direction: rtl;
+}
+
+.react-datepicker__header {
+  background-color: #f0f0f0;
+  border-bottom: none;
+}
+
+.react-datepicker__day-name,
+.react-datepicker__day {
+  margin: 0.2rem;
+}
+
+.loading {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+.thesisInfo {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: var(--global-radius);
+  margin-bottom: 20px;
+  border: 1px solid var(--global-border-color);
+}
+
+.thesisInfo h3 {
+  margin-top: 0;
+  color: #333;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 8px;
+  margin-bottom: 20px;
+}
+
+.infoRow {
+  display: flex;
+  margin-bottom: 8px;
+}
+
+.infoLabel {
+  font-weight: bold;
+  min-width: 120px;
+  color: #555;
+}
+
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.errorContainer {
+  padding: 2rem;
+  text-align: center;
+  color: #d32f2f;
+}
+
+.retryButton {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.retryButton:hover {
+  background-color: #1565c0;
+}
+
+.factorsList {
+  margin-bottom: 2rem;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.factorsTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.factorsTable th,
+.factorsTable td {
+  padding: 0.75rem;
+  text-align: center;
+  border: 1px solid #ddd;
+}
+
+.factorsTable th {
+  background-color: #f5f5f5;
+  font-weight: bold;
+}
+
+.factorsTable tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.unknownStatus {
+  color: #666;
+  font-weight: bold;
+}
+
+.confirmed {
+  color: green;
+  font-weight: bold;
+}
+
+.rejectedStatus {
+  color: red;
+  font-weight: bold;
+}
+
+.notConfirmed {
+  color: #999;
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+}
+
+.modal h3 {
+  margin-top: 0;
+  color: #333;
+}
+
+.modal p {
+  margin: 10px 0;
+  color: #555;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+
+/* اضافه کردن انیمیشن چشمک زدن */
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+    background-color: #ffe6e6;
+  }
+  50% {
+    opacity: 0.6;
+    background-color: #ffcccc;
+  }
+}
+
+/* استایل برای تاریخ منقضی شده */
+.expiredDate {
+  color: #ff0000 !important;
+  font-weight: bold !important;
+  background-color: #ffe6e6;
+  padding: 6px 4px;
+  border-radius: 4px;
+  animation: blink 1s step-end infinite;
+  display: inline-block;
+}
+
+.expiryWarning {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 12px;
+  border-radius: var(--global-radius);
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: bold;
+  border: 1px solid #ffcdd2;
+}
+
+.fileHelpText {
+  font-size: 12px;
+  color: #666;
+  background-color: #f0f7ff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin: 8px 0 0 0;
+  border-right: 3px solid #2196f3;
+  line-height: 1.5;
+}
