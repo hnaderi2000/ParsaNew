@@ -1083,7 +1083,9 @@ function ThesisList() {
                       <div className={Styles.actions}>
                         {["مدیر سیستم", "کارشناس پژوهشی دانشکده"].includes(
                           selectedRole
-                        )&&!thesis.Deputy_Confirmation && (
+                        )
+                        // &&!thesis.Deputy_Confirmation
+                         && (
                             <>
                               <button
                                 onClick={() => startEdit(thesis)}
