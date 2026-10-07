@@ -227,8 +227,9 @@ function ViewExpenseAll({ onClose }) {
     const isAllConfirmed = 
       factor.IsConfirmedByExpert == 1 &&
       factor.IsConfirmedByDeputy == 1 &&
-      factor.IsConfirmedByResearchDirector == 1 &&
-      factor.IsConfirmedByUniversityDeputy == 1;
+      factor.IsConfirmedByResearchDirector == 1 
+      // &&
+      // factor.IsConfirmedByUniversityDeputy == 1;
     
     if (!isAllConfirmed) {
       addNotification({
@@ -251,8 +252,9 @@ function ViewExpenseAll({ onClose }) {
       const isAllConfirmed = 
         factor.IsConfirmedByExpert == 1 &&
         factor.IsConfirmedByDeputy == 1 &&
-        factor.IsConfirmedByResearchDirector == 1 &&
-        factor.IsConfirmedByUniversityDeputy == 1;
+        factor.IsConfirmedByResearchDirector == 1
+        //  &&
+        // factor.IsConfirmedByUniversityDeputy == 1;
       
       if (isAllConfirmed) {
         if (isSelected) {
@@ -270,8 +272,9 @@ function ViewExpenseAll({ onClose }) {
     return factors.every(factor => 
       factor.IsConfirmedByExpert == 1 &&
       factor.IsConfirmedByDeputy == 1 &&
-      factor.IsConfirmedByResearchDirector == 1 &&
-      factor.IsConfirmedByUniversityDeputy == 1
+      factor.IsConfirmedByResearchDirector == 1
+      //  &&
+      // factor.IsConfirmedByUniversityDeputy == 1
     );
   };
   
@@ -661,251 +664,1009 @@ function ViewExpenseAll({ onClose }) {
   };
   
   // ==================== تابع تولید گزارش ====================
-  const generateReport = async () => {
-    const selectedFactorsList = [];
-    Object.entries(selectedFactors).forEach(([factorId, isSelected]) => {
-      if (isSelected) {
-        const factor = expenses.find(f => f.FactorID === parseInt(factorId));
-        if (factor) {
-          selectedFactorsList.push(factor);
-        }
-      }
-    });
+  // const generateReport = async () => {
+  //   const selectedFactorsList = [];
+  //   Object.entries(selectedFactors).forEach(([factorId, isSelected]) => {
+  //     if (isSelected) {
+  //       const factor = expenses.find(f => f.FactorID === parseInt(factorId));
+  //       if (factor) {
+  //         selectedFactorsList.push(factor);
+  //       }
+  //     }
+  //   });
     
-    if (selectedFactorsList.length === 0) {
-      addNotification({
-        type: "warning",
-        text: "لطفا حداقل یک فاکتور را برای درخواست هزینه انتخاب کنید",
-      });
-      return;
-    }
+  //   if (selectedFactorsList.length === 0) {
+  //     addNotification({
+  //       type: "warning",
+  //       text: "لطفا حداقل یک فاکتور را برای درخواست هزینه انتخاب کنید",
+  //     });
+  //     return;
+  //   }
     
-    const firstFactor = selectedFactorsList[0];
-    const studentName = firstFactor.StudentName || "-";
-    const professorName = firstFactor.ProfessorName || 
-      (firstFactor.professors && firstFactor.professors.length > 0 ? 
-        firstFactor.professors.find(p => p.nationalCode === firstFactor.ProfessorNationalCode)?.ProfessorName : "-");
+  //   const firstFactor = selectedFactorsList[0];
+  //   const studentName = firstFactor.StudentName || "-";
+  //   const professorName = firstFactor.ProfessorName || 
+  //     (firstFactor.professors && firstFactor.professors.length > 0 ? 
+  //       firstFactor.professors.find(p => p.nationalCode === firstFactor.ProfessorNationalCode)?.ProfessorName : "-");
     
-    const facultyId = firstFactor.FacultyID;
-    const facultyName = firstFactor.FacultyName || "-";
-    const totalAmount = selectedFactorsList.reduce((sum, factor) => sum + (factor.Amount || 0), 0);
+  //   const facultyId = firstFactor.FacultyID;
+  //   const facultyName = firstFactor.FacultyName || "-";
+  //   const totalAmount = selectedFactorsList.reduce((sum, factor) => sum + (factor.Amount || 0), 0);
     
-    let usersData = {};
-    try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get(`${serverAddress}/report-users`, {
-        params: { 
-          roles: "معاون پژوهشی دانشکده,مدیر امور پژوهشی,معاون پژوهشی دانشگاه",
-          facultyId: facultyId
-        },
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      usersData = response.data;
-    } catch (err) {
-      console.error("Error fetching users data:", err);
-      addNotification({
-        type: "warning",
-        text: "خطا در دریافت اطلاعات امضاها"
-      });
-    }
+  //   let usersData = {};
+  //   try {
+  //     const token = localStorage.getItem("token");
+  //     const response = await axios.get(`${serverAddress}/report-users`, {
+  //       params: { 
+  //         roles: "معاون پژوهشی دانشکده,مدیر امور پژوهشی,معاون پژوهشی دانشگاه",
+  //         facultyId: facultyId
+  //       },
+  //       headers: { Authorization: `Bearer ${token}` }
+  //     });
+  //     usersData = response.data;
+  //   } catch (err) {
+  //     console.error("Error fetching users data:", err);
+  //     addNotification({
+  //       type: "warning",
+  //       text: "خطا در دریافت اطلاعات امضاها"
+  //     });
+  //   }
     
-    const getSignatureImageHtml = (signaturePath, fallbackText) => {
-      if (signaturePath && signaturePath !== 'null' && signaturePath !== '') {
-        const signatureUrl = `${serverAddress}${signaturePath}`;
-        return `<img src="${signatureUrl}" style="height: 60px; max-width: 150px; object-fit: contain;" alt="امضا" onerror="this.style.display='none'; this.nextSibling.style.display='inline';" />
-                <span style="display: none; border-bottom: 1px solid #000; width: 150px;">${fallbackText}</span>`;
-      }
-      return `<span style="border-bottom: 1px solid #000; display: inline-block; width: 150px;">${fallbackText}</span>`;
-    };
+  //   const getSignatureImageHtml = (signaturePath, fallbackText) => {
+  //     if (signaturePath && signaturePath !== 'null' && signaturePath !== '') {
+  //       const signatureUrl = `${serverAddress}${signaturePath}`;
+  //       return `<img src="${signatureUrl}" style="height: 60px; max-width: 150px; object-fit: contain;" alt="امضا" onerror="this.style.display='none'; this.nextSibling.style.display='inline';" />
+  //               <span style="display: none; border-bottom: 1px solid #000; width: 150px;">${fallbackText}</span>`;
+  //     }
+  //     return `<span style="border-bottom: 1px solid #000; display: inline-block; width: 150px;">${fallbackText}</span>`;
+  //   };
     
-    const facultyDeputy = usersData["معاون پژوهشی دانشکده"]?.[0] || null;
-    const researchDirector = usersData["مدیر امور پژوهشی"]?.[0] || null;
-    const universityDeputy = usersData["معاون پژوهشی دانشگاه"]?.[0] || null;
+  //   const facultyDeputy = usersData["معاون پژوهشی دانشکده"]?.[0] || null;
+  //   const researchDirector = usersData["مدیر امور پژوهشی"]?.[0] || null;
+  //   const universityDeputy = usersData["معاون پژوهشی دانشگاه"]?.[0] || null;
     
-    const reportHtml = `
-      <!DOCTYPE html>
-      <html dir="rtl" lang="fa">
-      <head>
-        <meta charset="UTF-8">
-        <title>صورتجلسه پرداخت هزینه پارساهای مقطع کارشناسی ارشد و دکتری</title>
-        <span>موضوع ماده 38 آئین نامه مالی و معاملاتی</span>
-        <style>
-          * { margin: 0; padding: 0; box-sizing: border-box; }
-          body { font-family: 'Tahoma', 'Arial', sans-serif; padding: 8px; background: white; font-size: 12px; }
-          .report-container { max-width: 1000px; margin: 0 auto; padding: 5px; }
-          .info-box { position: absolute; top: 0; left: 0; border: 1px solid #000; padding: 6px 10px; border-radius: 4px; font-size: 11px; background-color: #f9f9f9; min-width: 150px; }
-          .info-box p { margin: 2px 0; line-height: 1.5; }
-          .info-box .label { font-weight: bold; margin-left: 5px; }
-          .header { text-align: center; margin-bottom: 10px; }
-          .bismillah { font-size: 18px; font-weight: bold; font-family: 'Traditional Arabic', 'Tahoma', serif; margin-bottom: 5px; }
-          .form-title { font-size: 16px; font-weight: bold; color: #333; }
-          .border-box { border: 1px solid black; padding: 10px; border-radius: 4px; margin-top: 8px; }
-          .items-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 11px; }
-          .items-table th, .items-table td { border: 1px solid black; padding: 6px 8px; text-align: center; }
-          .items-table th { background-color: #f5f5f5; font-weight: bold; }
-          .total-row { font-weight: bold; background-color: #f9f9f9; }
-          .info-section { margin-top: 10px; padding-top: 8px; border-top: 1px dashed #ccc; }
-          .info-row { display: flex; margin-bottom: 6px; font-size: 11px; }
-          .info-label { font-weight: bold; width: 200px; }
-          .info-value { flex: 1; padding-bottom: 2px; }
-          .signature-section { margin-top: 15px; display: flex; flex-wrap: wrap; gap: 8px; }
-          .signature-card { border: 1px solid #000; padding: 8px; border-radius: 4px; background-color: #fff; flex: 1; min-width: 200px; }
-          .signature-title { font-weight: bold; font-size: 11px; margin-bottom: 5px; background-color: #f5f5f5; padding: 4px 8px; border-radius: 4px; text-align: center; }
-          .signature-content { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; flex-wrap: wrap; gap: 8px; }
-          .signature-name { flex: 1; min-width: 150px; font-size: 10px; }
-          .signature-image { flex: 1; text-align: left; min-width: 120px; font-size: 10px; }
-          .approval-text { margin: 6px 0; font-size: 10px; line-height: 1.4; }
-          .faculty-info { background-color: #f9f9f9; padding: 4px 8px; border-radius: 4px; margin-top: 5px; font-size: 11px; color: #555; display: inline-block; }
-          @media print { body { padding: 0; margin: 0; } .print-hide { display: none; } .signature-card { break-inside: avoid; } .signature-image img { max-height: 40px; } }
-          .print-button { display: block; width: 180px; margin: 15px auto 5px; padding: 8px 16px; background-color: #4a90e2; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-family: inherit; }
-          .print-button:hover { background-color: #357ab8; }
-          @page { size: A4; margin: 0.5cm; }
-          .student-number { font-size: 9px; color: #666; margin-top: 2px; }
-        </style>
-      </head>
-      <body>
-        <div class="report-container">
-          <div class="info-box">
-            <p><span class="label">شماره:</span></p>
-            <p><span class="label">تاریخ:</span> </p>
-          </div>
-          <div class="header">
-            <div class="bismillah">بسمه تعالی</div>
-            <div class="form-title">
-                   صورتجلسه پرداخت هزینه پارساهای مقطع کارشناسی ارشد و دکتری
+  //   const reportHtml = `
+  //     <!DOCTYPE html>
+  //     <html dir="rtl" lang="fa">
+  //     <head>
+  //       <meta charset="UTF-8">
+  //       <title>صورتجلسه پرداخت هزینه پارساهای مقطع کارشناسی ارشد و دکتری</title>
+       
+  //       <style>
+  //         * { margin: 0; padding: 0; box-sizing: border-box; }
+  //         body { font-family: 'Tahoma', 'Arial', sans-serif; padding: 8px; background: white; font-size: 12px; }
+  //         .report-container { max-width: 1000px; margin: 0 auto; padding: 5px; }
+  //         .info-box { position: absolute; top: 0; left: 0; border: 1px solid #000; padding: 6px 10px; border-radius: 4px; font-size: 11px; background-color: #f9f9f9; min-width: 150px; }
+  //         .info-box p { margin: 2px 0; line-height: 1.5; }
+  //         .info-box .label { font-weight: bold; margin-left: 5px; }
+  //         .header { text-align: center; margin-bottom: 10px; }
+  //         .bismillah { font-size: 18px; font-weight: bold; font-family: 'Traditional Arabic', 'Tahoma', serif; margin-bottom: 5px; }
+  //         .form-title { font-size: 16px; font-weight: bold; color: #333; }
+  //         .border-box { border: 1px solid black; padding: 10px; border-radius: 4px; margin-top: 8px; }
+  //         .items-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 11px; }
+  //         .items-table th, .items-table td { border: 1px solid black; padding: 6px 8px; text-align: center; }
+  //         .items-table th { background-color: #f5f5f5; font-weight: bold; }
+  //         .total-row { font-weight: bold; background-color: #f9f9f9; }
+  //         .info-section { margin-top: 10px; padding-top: 8px; border-top: 1px dashed #ccc; }
+  //         .info-row { display: flex; margin-bottom: 6px; font-size: 11px; }
+  //         .info-label { font-weight: bold; width: 200px; }
+  //         .info-value { flex: 1; padding-bottom: 2px; }
+  //         .signature-section { margin-top: 15px; display: flex; flex-wrap: wrap; gap: 8px; }
+  //         .signature-card { border: 1px solid #000; padding: 8px; border-radius: 4px; background-color: #fff; flex: 1; min-width: 200px; }
+  //         .signature-title { font-weight: bold; font-size: 11px; margin-bottom: 5px; background-color: #f5f5f5; padding: 4px 8px; border-radius: 4px; text-align: center; }
+  //         .signature-content { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; flex-wrap: wrap; gap: 8px; }
+  //         .signature-name { flex: 1; min-width: 150px; font-size: 10px; }
+  //         .signature-image { flex: 1; text-align: left; min-width: 120px; font-size: 10px; }
+  //         .approval-text { margin: 6px 0; font-size: 10px; line-height: 1.4; }
+  //         .faculty-info { background-color: #f9f9f9; padding: 4px 8px; border-radius: 4px; margin-top: 5px; font-size: 11px; color: #555; display: inline-block; }
+  //         @media print { body { padding: 0; margin: 0; } .print-hide { display: none; } .signature-card { break-inside: avoid; } .signature-image img { max-height: 40px; } }
+  //         .print-button { display: block; width: 180px; margin: 15px auto 5px; padding: 8px 16px; background-color: #4a90e2; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-family: inherit; }
+  //         .print-button:hover { background-color: #357ab8; }
+  //         @page { size: A4; margin: 0.5cm; }
+  //         .student-number { font-size: 9px; color: #666; margin-top: 2px; }
+  //       </style>
+  //     </head>
+  //     <body>
+  //       <div class="report-container">
+  //         <div class="info-box">
+  //           <p><span class="label">شماره:</span></p>
+  //           <p><span class="label">تاریخ:</span> </p>
+  //         </div>
+  //         <div class="header">
+  //           <div class="bismillah">بسمه تعالی</div>
+  //           <div class="form-title">
+  //                  صورتجلسه پرداخت هزینه پارساهای مقطع کارشناسی ارشد و دکتری
                    
-            </div>
-            <small>موضوع ماده 38 آئین نامه مالی و معاملاتی</small>
-            <p>  <div class="faculty-info" style="margin-top: 10px; display: inline-block;">
-              ${facultyName}
-            </div></p>
+  //           </div>
+  //           <small>موضوع ماده 38 آئین نامه مالی و معاملاتی</small>
+  //           <p>  <div class="faculty-info" style="margin-top: 10px; display: inline-block;">
+  //             ${facultyName}
+  //           </div></p>
 
           
-          </div>
-          <div class="border-box">
-            <table class="items-table">
-              <thead>
-                <tr>
-                  <th style="width: 50px;">ردیف</th>
-                  <th style="width: 140px;">دانشجو</th>
-                  <th>شرح کالا / خدمات</th>
-                  <th style="width: 150px;">مبلغ (ریال)</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${selectedFactorsList.map((factor, index) => `
-                  <tr>
-                    <td>${index + 1}</td>
-                    <td style="text-align: center;">
-                      ${factor.StudentName}
-                      <div class="student-number">شماره دانشجویی: ${factor.StudentID}</div>
-                    </td>
-                    <td style="text-align: right;">
-                      ${factor.Description || ''}
+  //         </div>
+  //         <div class="border-box">
+  //           <table class="items-table">
+  //             <thead>
+  //               <tr>
+  //                 <th style="width: 50px;">ردیف</th>
+  //                 <th style="width: 140px;">دانشجو</th>
+  //                 <th>شرح کالا / خدمات</th>
+  //                 <th style="width: 150px;">مبلغ (ریال)</th>
+  //               </tr>
+  //             </thead>
+  //             <tbody>
+  //               ${selectedFactorsList.map((factor, index) => `
+  //                 <tr>
+  //                   <td>${index + 1}</td>
+  //                   <td style="text-align: center;">
+  //                     ${factor.StudentName}
+  //                     <div class="student-number">شماره دانشجویی: ${factor.StudentID}</div>
+  //                   </td>
+  //                   <td style="text-align: right;">
+  //                     ${factor.Description || ''}
                       
-                    </td>
-                    <td>${factor.Amount.toLocaleString()}</td>
-                  </tr>
-                `).join('')}
-                <tr class="total-row">
-                  <td colspan="3" style="text-align: left; font-weight: bold;">جمع کل</td>
-                  <td style="font-weight: bold;">${totalAmount.toLocaleString()}</td>
-                </tr>
-              </tbody>
-            </table>
-            <div class="info-section">
-              <div class="info-row">
-                <div class="info-label">نام و نام خانوادگی استاد راهنما :</div>
-                <div class="info-value">${professorName}</div>
-              </div>
-            </div>
-          </div>
-          <div class="signature-section">
-            <div class="signature-card">
-              <div class="signature-title">تأیید رابط مالی دانشکده</div>
-              <p class="approval-text">
-                مبلغ <strong>${totalAmount.toLocaleString()}</strong> ریال از مبلغ فوق، از محل اعتبار گرنت پارسا مورد تأیید است.
-              </p>
-              <div class="signature-content">
-                <div class="signature-name">
-                  نام و نام خانوادگی: ${user.firstName} ${user.lastName}
-                </div>
-                <div class="signature-image">
-                  امضا: <span style="display: inline-block; width: 150px;"></span>
-                </div>
-              </div>
-            </div>
-            <div class="signature-card">
-              <div class="signature-title">تأیید معاون پژوهشی  ${facultyName}</div>
-              <p class="approval-text">
-              هزینه کرد فوق مطابق آیین نامه گرنت جامع ، صورت جلسه شماره 190 هیات رئیسه محترم و موضوع ماده 38 آیین نامه مالی و معاملاتی می باشد و مورد تایید است 
-              </p>
-              <div class="signature-content">
-                <div class="signature-name">
-                  نام و نام خانوادگی: 
-                  <span style="display: inline-block; min-width: 200px;">
-                    ${facultyDeputy ? facultyDeputy.fullName : '_________________'}
-                  </span>
-                </div>
-                <div class="signature-image">
-                  امضا: 
-                  ${facultyDeputy ? getSignatureImageHtml(facultyDeputy.signaturePath, '_________________') : '<span style="border-bottom: 1px solid #000; display: inline-block; width: 150px;">_________________</span>'}
-                </div>
-              </div>
-            </div>
-            <div class="signature-card">
-              <div class="signature-title">تأیید مدیر امور پژوهشی دانشگاه</div>
-               <p class="approval-text">
-              هزینه کرد فوق مطابق آیین نامه گرنت جامع ، صورت جلسه شماره 190 هیات رئیسه محترم و موضوع ماده 38 آیین نامه مالی و معاملاتی می باشد و مورد تایید است 
-              </p>
-              <div class="signature-content">
-                <div class="signature-name">
-                  نام و نام خانوادگی: 
-                  <span style="display: inline-block; min-width: 200px;">
-                    ${researchDirector ? researchDirector.fullName : '_________________'}
-                  </span>
-                </div>
-                <div class="signature-image">
-                  امضا: 
-                  ${researchDirector ? getSignatureImageHtml(researchDirector.signaturePath, '_________________') : '<span style="border-bottom: 1px solid #000; display: inline-block; width: 150px;">_________________</span>'}
-                </div>
-              </div>
-            </div>
-            <div class="signature-card">
-              <div class="signature-title">تأیید معاون پژوهشی دانشگاه</div>
-              <p class="approval-text">
-              مدیر محترم امور مال دانشگاه پرداخت مبلغ فوق مطابق آیین نامه گرنت جامع،صورتجلسه شماره 490 هیات رئیسه محترم موضوع ماده 38 آئین نامه مالی و معاملاتی مورد تایید است 
-              </p>
-              <div class="signature-content">
-                <div class="signature-name">
-                  نام و نام خانوادگی: 
-                  <span style="display: inline-block; min-width: 200px;">
-                    ${universityDeputy ? universityDeputy.fullName : '_________________'}
-                  </span>
-                </div>
-                <div class="signature-image">
-                  امضا: 
-                  ${universityDeputy ? getSignatureImageHtml(universityDeputy.signaturePath, '_________________') : '<span style="border-bottom: 1px solid #000; display: inline-block; width: 150px;">_________________</span>'}
-                </div>
-              </div>
-            </div>
-          </div>
-          <div style="margin-top: 30px; text-align: left; font-size: 12px; color: #666;">
-            تاریخ چاپ: ${new Date().toLocaleDateString('fa-IR')}
-          </div>
-          <button class="print-button print-hide" onclick="window.print(); setTimeout(() => window.close(), 500);">
-            🖨️ چاپ گزارش
-          </button>
-        </div>
-      </body>
-      </html>
-    `;
+  //                   </td>
+  //                   <td>${factor.Amount.toLocaleString()}</td>
+  //                 </tr>
+  //               `).join('')}
+  //               <tr class="total-row">
+  //                 <td colspan="3" style="text-align: left; font-weight: bold;">جمع کل</td>
+  //                 <td style="font-weight: bold;">${totalAmount.toLocaleString()}</td>
+  //               </tr>
+  //             </tbody>
+  //           </table>
+  //           <div class="info-section">
+  //             <div class="info-row">
+  //               <div class="info-label">نام و نام خانوادگی استاد راهنما :</div>
+  //               <div class="info-value">${professorName}</div>
+  //             </div>
+  //           </div>
+  //         </div>
+  //         <div class="signature-section">
+  //           <div class="signature-card">
+  //             <div class="signature-title"> رابط مالی دانشکده</div>
+  //             <p class="approval-text">
+  //               مبلغ <strong>${totalAmount.toLocaleString()}</strong> ریال از مبلغ فوق، از محل اعتبار گرنت پارسا مورد تأیید است.
+  //             </p>
+  //             <div class="signature-content">
+  //               <div class="signature-name">
+  //                 نام و نام خانوادگی: ${user.firstName} ${user.lastName}
+  //               </div>
+  //               <div class="signature-image">
+  //                 امضا: <span style="display: inline-block; width: 150px;"></span>
+  //               </div>
+  //             </div>
+  //           </div>
+  //           <div class="signature-card">
+  //             <div class="signature-title"> معاون پژوهشی  ${facultyName}</div>
+  //             <p class="approval-text">
+  //             هزینه کرد فوق مطابق آیین نامه گرنت جامع ، صورت جلسه شماره 190 هیات رئیسه محترم و موضوع ماده 38 آیین نامه مالی و معاملاتی می باشد و مورد تایید است 
+  //             </p>
+  //             <div class="signature-content">
+  //               <div class="signature-name">
+  //                 نام و نام خانوادگی: 
+  //                 <span style="display: inline-block; min-width: 200px;">
+  //                   ${facultyDeputy ? facultyDeputy.fullName : '_________________'}
+  //                 </span>
+  //               </div>
+  //               <div class="signature-image">
+  //                 امضا: 
+  //                 ${facultyDeputy ? getSignatureImageHtml(facultyDeputy.signaturePath, '_________________') : '<span style="border-bottom: 1px solid #000; display: inline-block; width: 150px;">_________________</span>'}
+  //               </div>
+  //             </div>
+  //           </div>
+  //           <div class="signature-card">
+  //             <div class="signature-title"> مدیر امور پژوهشی دانشگاه</div>
+  //              <p class="approval-text">
+  //             هزینه کرد فوق مطابق آیین نامه گرنت جامع ، صورت جلسه شماره 190 هیات رئیسه محترم و موضوع ماده 38 آیین نامه مالی و معاملاتی می باشد و مورد تایید است 
+  //             </p>
+  //             <div class="signature-content">
+  //               <div class="signature-name">
+  //                 نام و نام خانوادگی: 
+  //                 <span style="display: inline-block; min-width: 200px;">
+  //                   ${researchDirector ? researchDirector.fullName : '_________________'}
+  //                 </span>
+  //               </div>
+  //               <div class="signature-image">
+  //                 امضا: 
+  //                 ${researchDirector ? getSignatureImageHtml(researchDirector.signaturePath, '_________________') : '<span style="border-bottom: 1px solid #000; display: inline-block; width: 150px;">_________________</span>'}
+  //               </div>
+  //             </div>
+  //           </div>
+  //           <div class="signature-card">
+  //             <div class="signature-title"> معاون پژوهشی دانشگاه</div>
+  //             <p class="approval-text">
+  //             مدیر محترم امور مالی دانشگاه پرداخت مبلغ فوق مطابق آیین نامه گرنت جامع،صورتجلسه شماره 490 هیات رئیسه محترم و موضوع ماده 38 آئین نامه مالی و معاملاتی مورد تایید است 
+  //             </p>
+  //             <div class="signature-content">
+  //               <div class="signature-name">
+  //                 نام و نام خانوادگی: 
+  //                 <span style="display: inline-block; min-width: 200px;">
+  //                   ${universityDeputy ? universityDeputy.fullName : '_________________'}
+  //                 </span>
+  //               </div>
+  //               <div class="signature-image">
+  //                 امضا: 
+  //                 ${universityDeputy ? getSignatureImageHtml(universityDeputy.signaturePath, '_________________') : '<span style="border-bottom: 1px solid #000; display: inline-block; width: 150px;">_________________</span>'}
+  //               </div>
+  //             </div>
+  //           </div>
+  //         </div>
+  //         <div style="margin-top: 30px; text-align: left; font-size: 12px; color: #666;">
+  //           تاریخ چاپ: ${new Date().toLocaleDateString('fa-IR')}
+  //         </div>
+  //         <button class="print-button print-hide" onclick="window.print(); setTimeout(() => window.close(), 500);">
+  //           🖨️ چاپ گزارش
+  //         </button>
+  //       </div>
+  //     </body>
+  //     </html>
+  //   `;
     
-    const printWindow = window.open('', '_blank', 'width=1000,height=800,scrollbars=yes');
-    printWindow.document.write(reportHtml);
-    printWindow.document.close();
-  };
+  //   const printWindow = window.open('', '_blank', 'width=1000,height=800,scrollbars=yes');
+  //   printWindow.document.write(reportHtml);
+  //   printWindow.document.close();
+  // };
   
+//   const generateReport = async () => {
+//   const selectedFactorsList = [];
+//   Object.entries(selectedFactors).forEach(([factorId, isSelected]) => {
+//     if (isSelected) {
+//       const factor = expenses.find(f => f.FactorID === parseInt(factorId));
+//       if (factor) {
+//         selectedFactorsList.push(factor);
+//       }
+//     }
+//   });
+  
+//   if (selectedFactorsList.length === 0) {
+//     addNotification({
+//       type: "warning",
+//       text: "لطفا حداقل یک فاکتور را برای درخواست هزینه انتخاب کنید",
+//     });
+//     return;
+//   }
+  
+//   const firstFactor = selectedFactorsList[0];
+//   const studentName = firstFactor.StudentName || "-";
+//   const professorName = firstFactor.ProfessorName || 
+//     (firstFactor.professors && firstFactor.professors.length > 0 ? 
+//       firstFactor.professors.find(p => p.nationalCode === firstFactor.ProfessorNationalCode)?.ProfessorName : "-");
+  
+//   const facultyId = firstFactor.FacultyID;
+//   const facultyName = firstFactor.FacultyName || "-";
+//   const totalAmount = selectedFactorsList.reduce((sum, factor) => sum + (factor.Amount || 0), 0);
+  
+//   let usersData = {};
+//   try {
+//     const token = localStorage.getItem("token");
+//     const response = await axios.get(`${serverAddress}/report-users`, {
+//       params: { 
+//         roles: "معاون پژوهشی دانشکده,مدیر امور پژوهشی,معاون پژوهشی دانشگاه",
+//         facultyId: facultyId
+//       },
+//       headers: { Authorization: `Bearer ${token}` }
+//     });
+//     usersData = response.data;
+//   } catch (err) {
+//     console.error("Error fetching users data:", err);
+//     addNotification({
+//       type: "warning",
+//       text: "خطا در دریافت اطلاعات امضاها"
+//     });
+//   }
+  
+//   // تابع جدید برای نمایش فقط کلمه "امضا"
+//   const getSignatureImageHtml = () => {
+//     return `<span style="border-bottom: 1px solid #000; display: inline-block; width: 150px; padding-bottom: 2px;">امضا</span>`;
+//   };
+  
+//   const facultyDeputy = usersData["معاون پژوهشی دانشکده"]?.[0] || null;
+//   const researchDirector = usersData["مدیر امور پژوهشی"]?.[0] || null;
+//   const universityDeputy = usersData["معاون پژوهشی دانشگاه"]?.[0] || null;
+  
+//   const reportHtml = `
+//     <!DOCTYPE html>
+//     <html dir="rtl" lang="fa">
+//     <head>
+//       <meta charset="UTF-8">
+//       <title>صورتجلسه پرداخت هزینه پارساهای مقطع کارشناسی ارشد و دکتری</title>
+     
+//       <style>
+//         * { margin: 0; padding: 0; box-sizing: border-box; }
+//         body { font-family: 'Tahoma', 'Arial', sans-serif; padding: 8px; background: white; font-size: 12px; }
+//         .report-container { max-width: 1000px; margin: 0 auto; padding: 5px; }
+//         .info-box { position: absolute; top: 0; left: 0; border: 1px solid #000; padding: 6px 10px; border-radius: 4px; font-size: 11px; background-color: #f9f9f9; min-width: 150px; }
+//         .info-box p { margin: 2px 0; line-height: 1.5; }
+//         .info-box .label { font-weight: bold; margin-left: 5px; }
+//         .header { text-align: center; margin-bottom: 10px; }
+//         .bismillah { font-size: 18px; font-weight: bold; font-family: 'Traditional Arabic', 'Tahoma', serif; margin-bottom: 5px; }
+//         .form-title { font-size: 16px; font-weight: bold; color: #333; }
+//         .border-box { border: 1px solid black; padding: 10px; border-radius: 4px; margin-top: 8px; }
+//         .items-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 11px; }
+//         .items-table th, .items-table td { border: 1px solid black; padding: 6px 8px; text-align: center; }
+//         .items-table th { background-color: #f5f5f5; font-weight: bold; }
+//         .total-row { font-weight: bold; background-color: #f9f9f9; }
+//         .info-section { margin-top: 10px; padding-top: 8px; border-top: 1px dashed #ccc; }
+//         .info-row { display: flex; margin-bottom: 6px; font-size: 11px; }
+//         .info-label { font-weight: bold; width: 200px; }
+//         .info-value { flex: 1; padding-bottom: 2px; }
+//         .signature-section { margin-top: 15px; display: flex; flex-wrap: wrap; gap: 8px; }
+//         .signature-card { border: 1px solid #000; padding: 8px; border-radius: 4px; background-color: #fff; flex: 1; min-width: 200px; }
+//         .signature-title { font-weight: bold; font-size: 11px; margin-bottom: 5px; background-color: #f5f5f5; padding: 4px 8px; border-radius: 4px; text-align: center; }
+//         .signature-content { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; flex-wrap: wrap; gap: 8px; }
+//         .signature-name { flex: 1; min-width: 150px; font-size: 10px; }
+//         .signature-image { flex: 1; text-align: left; min-width: 120px; font-size: 10px; }
+//         .approval-text { margin: 6px 0; font-size: 10px; line-height: 1.4; }
+//         .faculty-info { background-color: #f9f9f9; padding: 4px 8px; border-radius: 4px; margin-top: 5px; font-size: 11px; color: #555; display: inline-block; }
+//         @media print { body { padding: 0; margin: 0; } .print-hide { display: none; } .signature-card { break-inside: avoid; } .signature-image img { max-height: 40px; } }
+//         .print-button { display: block; width: 180px; margin: 15px auto 5px; padding: 8px 16px; background-color: #4a90e2; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-family: inherit; }
+//         .print-button:hover { background-color: #357ab8; }
+//         @page { size: A4; margin: 0.5cm; }
+//         .student-number { font-size: 9px; color: #666; margin-top: 2px; }
+//       </style>
+//     </head>
+//     <body>
+//       <div class="report-container">
+//         <div class="info-box">
+//           <p><span class="label">شماره:</span></p>
+//           <p><span class="label">تاریخ:</span> </p>
+//         </div>
+//         <div class="header">
+//           <div class="bismillah">بسمه تعالی</div>
+//           <div class="form-title">
+//                  صورتجلسه پرداخت هزینه پارساهای مقطع کارشناسی ارشد و دکتری
+                 
+//           </div>
+//           <small>موضوع ماده 38 آئین نامه مالی و معاملاتی</small>
+//           <p>  <div class="faculty-info" style="margin-top: 10px; display: inline-block;">
+//             ${facultyName}
+//           </div></p>
+//         </div>
+//         <div class="border-box">
+//           <table class="items-table">
+//             <thead>
+//               <tr>
+//                 <th style="width: 50px;">ردیف</th>
+//                 <th style="width: 140px;">دانشجو</th>
+//                 <th>شرح کالا / خدمات</th>
+//                 <th style="width: 150px;">مبلغ (ریال)</th>
+//               </tr>
+//             </thead>
+//             <tbody>
+//               ${selectedFactorsList.map((factor, index) => `
+//                 <tr>
+//                   <td>${index + 1}</td>
+//                   <td style="text-align: center;">
+//                     ${factor.StudentName}
+//                     <div class="student-number">شماره دانشجویی: ${factor.StudentID}</div>
+//                   </td>
+//                   <td style="text-align: right;">
+//                     ${factor.Description || ''}
+//                   </td>
+//                   <td>${factor.Amount.toLocaleString()}</td>
+//                 </tr>
+//               `).join('')}
+//               <tr class="total-row">
+//                 <td colspan="3" style="text-align: left; font-weight: bold;">جمع کل</td>
+//                 <td style="font-weight: bold;">${totalAmount.toLocaleString()}</td>
+//               </tr>
+//             </tbody>
+//           </table>
+//           <div class="info-section">
+//             <div class="info-row">
+//               <div class="info-label">نام و نام خانوادگی استاد راهنما :</div>
+//               <div class="info-value">${professorName}</div>
+//             </div>
+//           </div>
+//         </div>
+//         <div class="signature-section">
+//           <div class="signature-card">
+//             <div class="signature-title"> رابط مالی دانشکده</div>
+//             <p class="approval-text">
+//               مبلغ <strong>${totalAmount.toLocaleString()}</strong> ریال از مبلغ فوق، از محل اعتبار گرنت پارسا مورد تأیید است.
+//             </p>
+//             <div class="signature-content">
+//               <div class="signature-name">
+//                 نام و نام خانوادگی: ${user.firstName} ${user.lastName}
+//               </div>
+//               <div class="signature-image">
+//                 امضا: <span style=" display: inline-block; width: 150px; padding-bottom: 2px;"></span>
+//               </div>
+//             </div>
+//           </div>
+//           <div class="signature-card">
+//             <div class="signature-title"> معاون پژوهشی  ${facultyName}</div>
+//             <p class="approval-text">
+//             هزینه کرد فوق مطابق آیین نامه گرنت جامع ، صورت جلسه شماره 190 هیات رئیسه محترم و موضوع ماده 38 آیین نامه مالی و معاملاتی می باشد و مورد تایید است 
+//             </p>
+//             <div class="signature-content">
+//               <div class="signature-name">
+//                 نام و نام خانوادگی: 
+//                 <span style="display: inline-block; min-width: 200px;">
+//                   ${facultyDeputy ? facultyDeputy.fullName : '_________________'}
+//                 </span>
+//               </div>
+//               <div class="signature-image">
+//                 امضا: 
+//                 <span style= display: inline-block; width: 150px; padding-bottom: 2px;"></span>
+//               </div>
+//             </div>
+//           </div>
+//           <div class="signature-card">
+//             <div class="signature-title"> مدیر امور پژوهشی دانشگاه</div>
+//              <p class="approval-text">
+//             هزینه کرد فوق مطابق آیین نامه گرنت جامع ، صورت جلسه شماره 190 هیات رئیسه محترم و موضوع ماده 38 آیین نامه مالی و معاملاتی می باشد و مورد تایید است 
+//             </p>
+//             <div class="signature-content">
+//               <div class="signature-name">
+//                 نام و نام خانوادگی: 
+//                 <span style="display: inline-block; min-width: 200px;">
+//                   ${researchDirector ? researchDirector.fullName : '_________________'}
+//                 </span>
+//               </div>
+//               <div class="signature-image">
+//                 امضا: 
+//                 <span style=" display: inline-block; width: 150px; padding-bottom: 2px;"></span>
+//               </div>
+//             </div>
+//           </div>
+//           <div class="signature-card">
+//             <div class="signature-title"> معاون پژوهشی دانشگاه</div>
+//             <p class="approval-text">
+//             مدیر محترم امور مالی دانشگاه پرداخت مبلغ فوق مطابق آیین نامه گرنت جامع،صورتجلسه شماره 490 هیات رئیسه محترم و موضوع ماده 38 آئین نامه مالی و معاملاتی مورد تایید است 
+//             </p>
+//             <div class="signature-content">
+//               <div class="signature-name">
+//                 نام و نام خانوادگی: 
+//                 <span style="display: inline-block; min-width: 200px;">
+//                   ${universityDeputy ? universityDeputy.fullName : '_________________'}
+//                 </span>
+//               </div>
+//               <div class="signature-image">
+//                 امضا: 
+//                 <span style=" display: inline-block; width: 150px; padding-bottom: 2px;"></span>
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+//         <div style="margin-top: 30px; text-align: left; font-size: 12px; color: #666;">
+//           تاریخ چاپ: ${new Date().toLocaleDateString('fa-IR')}
+//         </div>
+//         <button class="print-button print-hide" onclick="window.print(); setTimeout(() => window.close(), 500);">
+//           🖨️ چاپ گزارش
+//         </button>
+//       </div>
+//     </body>
+//     </html>
+//   `;
+  
+//   const printWindow = window.open('', '_blank', 'width=1000,height=800,scrollbars=yes');
+//   printWindow.document.write(reportHtml);
+//   printWindow.document.close();
+// };
+
+// const generateReport = async () => {
+//   const selectedFactorsList = [];
+//   Object.entries(selectedFactors).forEach(([factorId, isSelected]) => {
+//     if (isSelected) {
+//       const factor = expenses.find(f => f.FactorID === parseInt(factorId));
+//       if (factor) {
+//         selectedFactorsList.push(factor);
+//       }
+//     }
+//   });
+  
+//   if (selectedFactorsList.length === 0) {
+//     addNotification({
+//       type: "warning",
+//       text: "لطفا حداقل یک فاکتور را برای درخواست هزینه انتخاب کنید",
+//     });
+//     return;
+//   }
+  
+//   const firstFactor = selectedFactorsList[0];
+//   const studentName = firstFactor.StudentName || "-";
+//   const professorName = firstFactor.ProfessorName || 
+//     (firstFactor.professors && firstFactor.professors.length > 0 ? 
+//       firstFactor.professors.find(p => p.nationalCode === firstFactor.ProfessorNationalCode)?.ProfessorName : "-");
+  
+//   const facultyId = firstFactor.FacultyID;
+//   const facultyName = firstFactor.FacultyName || "-";
+//   const totalAmount = selectedFactorsList.reduce((sum, factor) => sum + (factor.Amount || 0), 0);
+  
+//   let usersData = {};
+//   try {
+//     const token = localStorage.getItem("token");
+//     const response = await axios.get(`${serverAddress}/report-users`, {
+//       params: { 
+//         roles: "معاون پژوهشی دانشکده,مدیر امور پژوهشی,معاون پژوهشی دانشگاه",
+//         facultyId: facultyId
+//       },
+//       headers: { Authorization: `Bearer ${token}` }
+//     });
+//     usersData = response.data;
+//   } catch (err) {
+//     console.error("Error fetching users data:", err);
+//     addNotification({
+//       type: "warning",
+//       text: "خطا در دریافت اطلاعات امضاها"
+//     });
+//   }
+  
+//   const facultyDeputy = usersData["معاون پژوهشی دانشکده"]?.[0] || null;
+//   const researchDirector = usersData["مدیر امور پژوهشی"]?.[0] || null;
+//   const universityDeputy = usersData["معاون پژوهشی دانشگاه"]?.[0] || null;
+  
+//   const reportHtml = `
+//     <!DOCTYPE html>
+//     <html dir="rtl" lang="fa">
+//     <head>
+//       <meta charset="UTF-8">
+//       <title>صورتجلسه پرداخت هزینه پارساهای مقطع کارشناسی ارشد و دکتری</title>
+     
+//       <style>
+//         * { margin: 0; padding: 0; box-sizing: border-box; }
+//         body { font-family: 'Tahoma', 'Arial', sans-serif; padding: 8px; background: white; font-size: 12px; }
+//         .report-container { max-width: 1000px; margin: 0 auto; padding: 5px; }
+//         .info-box { position: absolute; top: 0; left: 0; border: 1px solid #000; padding: 6px 10px; border-radius: 4px; font-size: 11px; background-color: #f9f9f9; min-width: 150px; }
+//         .info-box p { margin: 2px 0; line-height: 1.5; }
+//         .info-box .label { font-weight: bold; margin-left: 5px; }
+//         .header { text-align: center; margin-bottom: 10px; }
+//         .bismillah { font-size: 18px; font-weight: bold; font-family: 'Traditional Arabic', 'Tahoma', serif; margin-bottom: 5px; }
+//         .form-title { font-size: 16px; font-weight: bold; color: #333; }
+//         .border-box { border: 1px solid black; padding: 10px; border-radius: 4px; margin-top: 8px; }
+//         .items-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 11px; }
+//         .items-table th, .items-table td { border: 1px solid black; padding: 6px 8px; text-align: center; }
+//         .items-table th { background-color: #f5f5f5; font-weight: bold; }
+//         .total-row { font-weight: bold; background-color: #f9f9f9; }
+//         .info-section { margin-top: 10px; padding-top: 8px; border-top: 1px dashed #ccc; }
+//         .info-row { display: flex; margin-bottom: 6px; font-size: 11px; }
+//         .info-label { font-weight: bold; width: 200px; }
+//         .info-value { flex: 1; padding-bottom: 2px; }
+//         .signature-section { margin-top: 15px; display: flex; flex-wrap: wrap; gap: 8px; }
+//         .signature-card { border: 1px solid #000; padding: 8px; border-radius: 4px; background-color: #fff; flex: 1; min-width: 200px; }
+//         .signature-title { font-weight: bold; font-size: 11px; margin-bottom: 5px; background-color: #f5f5f5; padding: 4px 8px; border-radius: 4px; text-align: center; }
+//         .signature-content { 
+//           display: flex; 
+//           flex-direction: column; 
+//           gap: 8px; 
+//           margin-top: 8px; 
+//         }
+//         .signature-row { 
+//           display: flex; 
+//           justify-content: space-between; 
+//           align-items: center; 
+//           font-size: 10px; 
+//         }
+//         .signature-label { 
+//           font-weight: bold; 
+//           min-width: 100px; 
+//         }
+//         .signature-name { 
+//           flex: 1; 
+//           text-align: right; 
+//           padding-right: 10px;
+//         }
+//         .signature-line {
+//           flex: 1;
+//           text-align: center;
+//           border-bottom: 1px solid #000;
+//           padding-bottom: 2px;
+//           min-width: 150px;
+//         }
+//         .approval-text { margin: 6px 0; font-size: 10px; line-height: 1.4; }
+//         .faculty-info { background-color: #f9f9f9; padding: 4px 8px; border-radius: 4px; margin-top: 5px; font-size: 11px; color: #555; display: inline-block; }
+//         @media print { body { padding: 0; margin: 0; } .print-hide { display: none; } .signature-card { break-inside: avoid; } }
+//         .print-button { display: block; width: 180px; margin: 15px auto 5px; padding: 8px 16px; background-color: #4a90e2; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-family: inherit; }
+//         .print-button:hover { background-color: #357ab8; }
+//         @page { size: A4; margin: 0.5cm; }
+//         .student-number { font-size: 9px; color: #666; margin-top: 2px; }
+//       </style>
+//     </head>
+//     <body>
+//       <div class="report-container">
+//         <div class="info-box">
+//           <p><span class="label">شماره:</span></p>
+//           <p><span class="label">تاریخ:</span> </p>
+//         </div>
+//         <div class="header">
+//           <div class="bismillah">بسمه تعالی</div>
+//           <div class="form-title">
+//                  صورتجلسه پرداخت هزینه پارساهای مقطع کارشناسی ارشد و دکتری
+                 
+//           </div>
+//           <small>موضوع ماده 38 آئین نامه مالی و معاملاتی</small>
+//           <p>  <div class="faculty-info" style="margin-top: 10px; display: inline-block;">
+//             ${facultyName}
+//           </div></p>
+//         </div>
+//         <div class="border-box">
+//           <table class="items-table">
+//             <thead>
+//               <tr>
+//                 <th style="width: 50px;">ردیف</th>
+//                 <th style="width: 140px;">دانشجو</th>
+//                 <th>شرح کالا / خدمات</th>
+//                 <th style="width: 150px;">مبلغ (ریال)</th>
+//               </tr>
+//             </thead>
+//             <tbody>
+//               ${selectedFactorsList.map((factor, index) => `
+//                 <tr>
+//                   <td>${index + 1}</td>
+//                   <td style="text-align: center;">
+//                     ${factor.StudentName}
+//                     <div class="student-number">شماره دانشجویی: ${factor.StudentID}</div>
+//                   </td>
+//                   <td style="text-align: right;">
+//                     ${factor.Description || ''}
+//                   </td>
+//                   <td>${factor.Amount.toLocaleString()}</td>
+//                 </tr>
+//               `).join('')}
+//               <tr class="total-row">
+//                 <td colspan="3" style="text-align: left; font-weight: bold;">جمع کل</td>
+//                 <td style="font-weight: bold;">${totalAmount.toLocaleString()}</td>
+//               </tr>
+//             </tbody>
+//           </table>
+//           <div class="info-section">
+//             <div class="info-row">
+//               <div class="info-label">نام و نام خانوادگی استاد راهنما :</div>
+//               <div class="info-value">${professorName}</div>
+//             </div>
+//           </div>
+//         </div>
+//         <div class="signature-section">
+//           <div class="signature-card">
+//             <div class="signature-title">رابط مالی دانشکده</div>
+//             <p class="approval-text">
+//               مبلغ <strong>${totalAmount.toLocaleString()}</strong> ریال از مبلغ فوق، از محل اعتبار گرنت پارسا مورد تأیید است.
+//             </p>
+//             <div class="signature-content">
+//               <div class="signature-row">
+//                 <span class="signature-label">نام و نام خانوادگی:</span>
+//                 <span class="signature-name">${user.firstName} ${user.lastName}</span>
+//               </div>
+//               <div class="signature-row">
+//                 <span class="signature-label">امضا:</span>
+                
+//               </div>
+//             </div>
+//           </div>
+//           <div class="signature-card">
+//             <div class="signature-title">معاون پژوهشی ${facultyName}</div>
+//             <p class="approval-text">
+//               هزینه کرد فوق مطابق آیین نامه گرنت جامع ، صورت جلسه شماره 190 هیات رئیسه محترم و موضوع ماده 38 آیین نامه مالی و معاملاتی می باشد و مورد تایید است 
+//             </p>
+//             <div class="signature-content">
+//               <div class="signature-row">
+//                 <span class="signature-label">نام و نام خانوادگی:</span>
+//                 <span class="signature-name">${facultyDeputy ? facultyDeputy.fullName : '_________________'}</span>
+//               </div>
+//               <div class="signature-row">
+//                 <span class="signature-label">امضا:</span>
+                
+//               </div>
+//             </div>
+//           </div>
+//           <div class="signature-card">
+//             <div class="signature-title">مدیر امور پژوهشی دانشگاه</div>
+//             <p class="approval-text">
+//               هزینه کرد فوق مطابق آیین نامه گرنت جامع ، صورت جلسه شماره 190 هیات رئیسه محترم و موضوع ماده 38 آیین نامه مالی و معاملاتی می باشد و مورد تایید است 
+//             </p>
+//             <div class="signature-content">
+//               <div class="signature-row">
+//                 <span class="signature-label">نام و نام خانوادگی:</span>
+//                 <span class="signature-name">${researchDirector ? researchDirector.fullName : '_________________'}</span>
+//               </div>
+//               <div class="signature-row">
+//                 <span class="signature-label">امضا:</span>
+               
+//               </div>
+//             </div>
+//           </div>
+//           <div class="signature-card">
+//             <div class="signature-title">معاون پژوهشی دانشگاه</div>
+//             <p class="approval-text">
+//               مدیر محترم امور مالی دانشگاه پرداخت مبلغ فوق مطابق آیین نامه گرنت جامع،صورتجلسه شماره 490 هیات رئیسه محترم و موضوع ماده 38 آئین نامه مالی و معاملاتی مورد تایید است 
+//             </p>
+//             <div class="signature-content">
+//               <div class="signature-row">
+//                 <span class="signature-label">نام و نام خانوادگی:</span>
+//                 <span class="signature-name">${universityDeputy ? universityDeputy.fullName : '_________________'}</span>
+//               </div>
+//               <div class="signature-row">
+//                 <span class="signature-label">امضا:</span>
+                
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+//         <div style="margin-top: 30px; text-align: left; font-size: 12px; color: #666;">
+//           تاریخ چاپ: ${new Date().toLocaleDateString('fa-IR')}
+//         </div>
+//         <button class="print-button print-hide" onclick="window.print(); setTimeout(() => window.close(), 500);">
+//           🖨️ چاپ گزارش
+//         </button>
+//       </div>
+//     </body>
+//     </html>
+//   `;
+  
+//   const printWindow = window.open('', '_blank', 'width=1000,height=800,scrollbars=yes');
+//   printWindow.document.write(reportHtml);
+//   printWindow.document.close();
+// };
+const generateReport = async () => {
+  const selectedFactorsList = [];
+  Object.entries(selectedFactors).forEach(([factorId, isSelected]) => {
+    if (isSelected) {
+      const factor = expenses.find(f => f.FactorID === parseInt(factorId));
+      if (factor) {
+        selectedFactorsList.push(factor);
+      }
+    }
+  });
+  
+  if (selectedFactorsList.length === 0) {
+    addNotification({
+      type: "warning",
+      text: "لطفا حداقل یک فاکتور را برای درخواست هزینه انتخاب کنید",
+    });
+    return;
+  }
+  
+  const firstFactor = selectedFactorsList[0];
+  const studentName = firstFactor.StudentName || "-";
+  const professorName = firstFactor.ProfessorName || 
+    (firstFactor.professors && firstFactor.professors.length > 0 ? 
+      firstFactor.professors.find(p => p.nationalCode === firstFactor.ProfessorNationalCode)?.ProfessorName : "-");
+  
+  const facultyId = firstFactor.FacultyID;
+  const facultyName = firstFactor.FacultyName || "-";
+  const totalAmount = selectedFactorsList.reduce((sum, factor) => sum + (factor.Amount || 0), 0);
+  
+  let usersData = {};
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axios.get(`${serverAddress}/report-users`, {
+      params: { 
+        roles: "معاون پژوهشی دانشکده,مدیر امور پژوهشی,معاون پژوهشی دانشگاه",
+        facultyId: facultyId
+      },
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    usersData = response.data;
+  } catch (err) {
+    console.error("Error fetching users data:", err);
+    addNotification({
+      type: "warning",
+      text: "خطا در دریافت اطلاعات امضاها"
+    });
+  }
+  
+  const facultyDeputy = usersData["معاون پژوهشی دانشکده"]?.[0] || null;
+  const researchDirector = usersData["مدیر امور پژوهشی"]?.[0] || null;
+  const universityDeputy = usersData["معاون پژوهشی دانشگاه"]?.[0] || null;
+  
+  const reportHtml = `
+    <!DOCTYPE html>
+    <html dir="rtl" lang="fa">
+    <head>
+      <meta charset="UTF-8">
+      <title>صورتجلسه پرداخت هزینه پارساهای مقطع کارشناسی ارشد و دکتری</title>
+     
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Tahoma', 'Arial', sans-serif; padding: 8px; background: white; font-size: 12px; }
+        .report-container { max-width: 1000px; margin: 0 auto; padding: 5px; }
+        .info-box { position: absolute; top: 0; left: 0; border: 1px solid #000; padding: 6px 10px; border-radius: 4px; font-size: 11px; background-color: #f9f9f9; min-width: 150px; }
+        .info-box p { margin: 2px 0; line-height: 1.5; }
+        .info-box .label { font-weight: bold; margin-left: 5px; }
+        .header { text-align: center; margin-bottom: 10px; }
+        .bismillah { font-size: 18px; font-weight: bold; font-family: 'Traditional Arabic', 'Tahoma', serif; margin-bottom: 5px; }
+        .form-title { font-size: 16px; font-weight: bold; color: #333; }
+        .border-box { border: 1px solid black; padding: 10px; border-radius: 4px; margin-top: 8px; }
+        .items-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 11px; }
+        .items-table th, .items-table td { border: 1px solid black; padding: 6px 8px; text-align: center; }
+        .items-table th { background-color: #f5f5f5; font-weight: bold; }
+        .total-row { font-weight: bold; background-color: #f9f9f9; }
+        .info-section { margin-top: 10px; padding-top: 8px; border-top: 1px dashed #ccc; }
+        .info-row { display: flex; margin-bottom: 6px; font-size: 11px; }
+        .info-label { font-weight: bold; width: 200px; }
+        .info-value { flex: 1; padding-bottom: 2px; }
+        .signature-section { margin-top: 15px; display: flex; flex-wrap: wrap; gap: 8px; }
+        .signature-card { 
+          border: 1px solid #000; 
+          padding: 12px; 
+          border-radius: 4px; 
+          background-color: #fff; 
+          flex: 1; 
+          min-width: 200px;
+          min-height: 180px; /* افزایش ارتفاع کارت */
+        }
+        .signature-title { font-weight: bold; font-size: 11px; margin-bottom: 5px; background-color: #f5f5f5; padding: 4px 8px; border-radius: 4px; text-align: center; }
+        .signature-content { 
+          display: flex; 
+          flex-direction: column; 
+          gap: 12px; /* افزایش فاصله بین ردیف‌ها */
+          margin-top: 8px; 
+        }
+        .signature-row { 
+          display: flex; 
+          justify-content: space-between; 
+          align-items: center; 
+          font-size: 10px;
+          padding: 4px 0;
+        }
+        .signature-label { 
+          font-weight: bold; 
+          min-width: 100px; 
+        }
+        .signature-name { 
+          flex: 1; 
+          text-align: right; 
+          padding-right: 10px;
+        }
+        .signature-space {
+          flex: 1;
+          text-align: center;
+          
+          padding-bottom: 25px; /* افزایش فضای زیر خط */
+          min-height: 50px; /* افزایش ارتفاع فضای امضا */
+          width: 100%;
+          margin-top: 5px;
+        }
+        .approval-text { margin: 8px 0; font-size: 10px; line-height: 1.6; }
+        .faculty-info { background-color: #f9f9f9; padding: 4px 8px; border-radius: 4px; margin-top: 5px; font-size: 11px; color: #555; display: inline-block; }
+        @media print { body { padding: 0; margin: 0; } .print-hide { display: none; } .signature-card { break-inside: avoid; } }
+        .print-button { display: block; width: 180px; margin: 15px auto 5px; padding: 8px 16px; background-color: #4a90e2; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-family: inherit; }
+        .print-button:hover { background-color: #357ab8; }
+        @page { size: A4; margin: 0.5cm; }
+        .student-number { font-size: 9px; color: #666; margin-top: 2px; }
+      </style>
+    </head>
+    <body>
+      <div class="report-container">
+        <div class="info-box">
+          <p><span class="label">شماره:</span></p>
+          <p><span class="label">تاریخ:</span> </p>
+        </div>
+        <div class="header">
+          <div class="bismillah">بسمه تعالی</div>
+          <div class="form-title">
+                 صورتجلسه پرداخت هزینه پارساهای مقطع کارشناسی ارشد و دکتری
+                 
+          </div>
+          <small>موضوع ماده 38 آئین نامه مالی و معاملاتی</small>
+          <p>  <div class="faculty-info" style="margin-top: 10px; display: inline-block;">
+            ${facultyName}
+          </div></p>
+        </div>
+        <div class="border-box">
+          <table class="items-table">
+            <thead>
+              <tr>
+                <th style="width: 50px;">ردیف</th>
+                <th style="width: 140px;">دانشجو</th>
+                <th>شرح کالا / خدمات</th>
+                <th style="width: 150px;">مبلغ (ریال)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${selectedFactorsList.map((factor, index) => `
+                <tr>
+                  <td>${index + 1}</td>
+                  <td style="text-align: center;">
+                    ${factor.StudentName}
+                    <div class="student-number">شماره دانشجویی: ${factor.StudentID}</div>
+                  </td>
+                  <td style="text-align: right;">
+                    ${factor.Description || ''}
+                  </td>
+                  <td>${factor.Amount.toLocaleString()}</td>
+                </tr>
+              `).join('')}
+              <tr class="total-row">
+                <td colspan="3" style="text-align: left; font-weight: bold;">جمع کل</td>
+                <td style="font-weight: bold;">${totalAmount.toLocaleString()}</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="info-section">
+            <div class="info-row">
+              <div class="info-label">نام و نام خانوادگی استاد راهنما :</div>
+              <div class="info-value">${professorName}</div>
+            </div>
+          </div>
+        </div>
+        <div class="signature-section">
+          <div class="signature-card">
+            <div class="signature-title">رابط مالی دانشکده</div>
+            <p class="approval-text">
+              مبلغ <strong>${totalAmount.toLocaleString()}</strong> ریال از مبلغ فوق، از محل اعتبار گرنت پارسا مورد تأیید است.
+            </p>
+            <br/>
+           
+            <div class="signature-content">
+              <div class="signature-row">
+                <span class="signature-label">نام و نام خانوادگی:</span>
+                <span class="signature-name">${user.firstName} ${user.lastName}</span>
+              </div>
+              <div class="signature-row" style="margin-top: 10px;">
+              
+                <span class="signature-label">امضا:</span>
+                <span class="signature-space"></span>
+              </div>
+            </div>
+          </div>
+          <div class="signature-card">
+            <div class="signature-title">معاون پژوهشی ${facultyName}</div>
+            <p class="approval-text">
+              هزینه کرد فوق مطابق آیین نامه گرنت جامع ، صورت جلسه شماره 190 هیات رئیسه محترم و موضوع ماده 38 آیین نامه مالی و معاملاتی می باشد و مورد تایید است 
+            </p>
+            <div class="signature-content">
+              <div class="signature-row">
+                <span class="signature-label">نام و نام خانوادگی:</span>
+                <span class="signature-name">${facultyDeputy ? facultyDeputy.fullName : '_________________'}</span>
+              </div>
+              <div class="signature-row" style="margin-top: 10px;">
+                <span class="signature-label">امضا:</span>
+                <span class="signature-space"></span>
+              </div>
+            </div>
+          </div>
+          <div class="signature-card">
+            <div class="signature-title">مدیر امور پژوهشی دانشگاه</div>
+            <p class="approval-text">
+              هزینه کرد فوق مطابق آیین نامه گرنت جامع ، صورت جلسه شماره 190 هیات رئیسه محترم و موضوع ماده 38 آیین نامه مالی و معاملاتی می باشد و مورد تایید است 
+            </p>
+            <div class="signature-content">
+              <div class="signature-row">
+                <span class="signature-label">نام و نام خانوادگی:</span>
+                <span class="signature-name">${researchDirector ? researchDirector.fullName : '_________________'}</span>
+              </div>
+              <div class="signature-row" style="margin-top: 10px;">
+                <span class="signature-label">امضا:</span>
+                <span class="signature-space"></span>
+              </div>
+            </div>
+          </div>
+          <div class="signature-card">
+            <div class="signature-title">معاون پژوهشی دانشگاه</div>
+            <p class="approval-text">
+              مدیر محترم امور مالی دانشگاه پرداخت مبلغ فوق مطابق آیین نامه گرنت جامع،صورتجلسه شماره 490 هیات رئیسه محترم و موضوع ماده 38 آئین نامه مالی و معاملاتی مورد تایید است 
+            </p>
+            <div class="signature-content">
+              <div class="signature-row">
+                <span class="signature-label">نام و نام خانوادگی:</span>
+                <span class="signature-name">${universityDeputy ? universityDeputy.fullName : '_________________'}</span>
+              </div>
+              <div class="signature-row" style="margin-top: 10px;">
+                <span class="signature-label">امضا:</span>
+                <span class="signature-space"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top: 30px; text-align: left; font-size: 12px; color: #666;">
+          تاریخ چاپ: ${new Date().toLocaleDateString('fa-IR')}
+        </div>
+        <button class="print-button print-hide" onclick="window.print(); setTimeout(() => window.close(), 500);">
+          🖨️ چاپ گزارش
+        </button>
+      </div>
+    </body>
+    </html>
+  `;
+  
+  const printWindow = window.open('', '_blank', 'width=1000,height=800,scrollbars=yes');
+  printWindow.document.write(reportHtml);
+  printWindow.document.close();
+};
   // ==================== رندر شرطی (در انتها) ====================
   if (loading) {
     return (
@@ -1013,8 +1774,9 @@ function ViewExpenseAll({ onClose }) {
                     const isAllConfirmed = 
                       factor.IsConfirmedByExpert == 1 &&
                       factor.IsConfirmedByDeputy == 1 &&
-                      factor.IsConfirmedByResearchDirector == 1 &&
-                      factor.IsConfirmedByUniversityDeputy == 1;
+                      factor.IsConfirmedByResearchDirector == 1
+                      // &&
+                    //  factor.IsConfirmedByUniversityDeputy == 1;
                     
                     let professorName = '-';
                     if (factor.ProfessorName) {

@@ -76,20 +76,15 @@
   white-space: nowrap;
 }
 
-/* جلوگیری از شکستن متن عنوان به خط بعد - در صورت نیاز */
-.thesisTable td:first-child,
-.thesisTable th:first-child {
-  position: sticky;
-  left: 0;
-  background-color: inherit;
-  z-index: 15;
-}
-
-/* ثابت نگه داشتن سربرگ */
-.thesisTable thead tr {
+/* ثابت نگه داشتن سربرگ - اصلاح شده */
+.thesisTable thead {
   position: sticky;
   top: 0;
   z-index: 10;
+}
+
+.thesisTable thead tr {
+  display: table-row;
 }
 
 .thesisTable th {
@@ -99,6 +94,15 @@
   top: 0;
   box-shadow: 0 1px 0 0 var(--global-border-color);
   z-index: 10;
+}
+
+/* جلوگیری از شکستن متن عنوان به خط بعد - در صورت نیاز */
+.thesisTable td:first-child,
+.thesisTable th:first-child {
+  position: sticky;
+  left: 0;
+  background-color: inherit;
+  z-index: 15;
 }
 
 /* رنگ پس‌زمینه سلول‌های بدنه */
@@ -337,18 +341,20 @@
   align-items: flex-end;
 }
 
-/* Toggle Switch */
+/* Toggle Switch - اصلاح شده */
 .toggleSwitch {
   position: relative;
   display: inline-block;
   width: 40px;
   height: 36px;
+  cursor: pointer;
 }
 
 .toggleInput {
   opacity: 0;
   width: 0;
   height: 0;
+  position: absolute;
 }
 
 .toggleSlider {
@@ -402,6 +408,7 @@
   word-break: break-word;
   white-space: normal;
 }
+
 .editInput {
   width: 100%;
   min-width: 200px;
@@ -410,7 +417,6 @@
   border: 1px solid #ddd;
   border-radius: 4px;
 }
-
 
 .clickableTitle:hover {
   color: #0056b3;
